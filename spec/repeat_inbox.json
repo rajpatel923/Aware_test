@@ -1,0 +1,23 @@
+{
+  "description": "An inbox response is lost after the server has processed the request. The client must re-request the same page; the server must return identical records; the client must not create duplicates. behavior.md 7.3. Run with each language as receiver.",
+  "roles": [{"alice": "swift", "bob": "kotlin"}, {"alice": "kotlin", "bob": "swift"}],
+  "steps": [
+    {"client": "alice", "cmd": "identify", "args": {"name": "alice"}},
+    {"client": "bob",   "cmd": "identify", "args": {"name": "bob"}},
+    {"client": "alice", "cmd": "send", "args": {"recipient": "bob", "text": "Delivered twice, stored once"}, "bind": "m1"},
+    {"client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}}},
+
+    {"client": "bob", "cmd": "fault", "args": {"drop_next_response": "inbox"}},
+    {"client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "backoff", "received": 0}}},
+    {"client": "bob", "cmd": "snapshot", "expect": {"absent": ["$m1"], "note": "cursor must not have advanced"}},
+
+    {"client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "received": 1}}},
+    {"client": "bob", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m1", "sender": "alice", "text": "Delivered twice, stored once", "status": "accepted"}]}},
+
+    {"client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "received": 0}, "note": "second fetch of same page must not re-deliver"}},
+    {"client": "bob", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m1"}]}, "note": "still exactly one entry"},
+
+    {"client": "alice", "cmd": "shutdown"},
+    {"client": "bob",   "cmd": "shutdown"}
+  ]
+}

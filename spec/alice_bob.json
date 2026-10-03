@@ -1,0 +1,42 @@
+{
+  "description": "Required scenario, behavior.md section 14. Run twice: alice=swift/bob=kotlin, then alice=kotlin/bob=swift. Fresh server session and data directories per run. Runners in manual mode.",
+  "roles": [{"alice": "swift", "bob": "kotlin"}, {"alice": "kotlin", "bob": "swift"}],
+  "texts_note": "Replace texts with the assignment's exact wording if it specifies them.",
+  "steps": [
+    {"step": 1, "client": "alice", "cmd": "identify", "args": {"name": "Alice"}, "expect": {"result": {"username": "alice"}}},
+    {"step": 1, "client": "bob", "cmd": "identify", "args": {"name": "Bob"}, "expect": {"result": {"username": "bob"}}},
+    {"step": 1, "client": "alice", "cmd": "send", "args": {"recipient": "bob", "text": "Hi Bob, I have something important to tell you"}, "bind": "m1", "expect": {"result": {"status": "queued"}}},
+    {"step": 1, "client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}}},
+    {"step": 1, "client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "ok"}}},
+    {"step": 1, "client": "bob", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m1", "sender": "alice", "text": "Hi Bob, I have something important to tell you", "status": "accepted"}]}},
+    {"step": 1, "client": "bob", "cmd": "send", "args": {"recipient": "alice", "text": "What is it?"}, "bind": "m2"},
+    {"step": 1, "client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}}},
+    {"step": 1, "client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok"}}},
+    {"step": 1, "client": "alice", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m2", "sender": "bob", "text": "What is it?", "status": "accepted"}]}},
+
+    {"step": 2, "client": "alice", "cmd": "offline", "args": {"enabled": true}},
+    {"step": 2, "client": "alice", "cmd": "send", "args": {"recipient": "bob", "text": "Queued by Alice while offline"}, "bind": "m3"},
+    {"step": 2, "client": "bob", "cmd": "offline", "args": {"enabled": true}},
+    {"step": 2, "client": "bob", "cmd": "send", "args": {"recipient": "alice", "text": "Queued by Bob while offline"}, "bind": "m4"},
+    {"step": 2, "client": "alice", "cmd": "snapshot", "expect": {"result": {"pending_count": 1}, "contains": [{"client_message_id": "$m3", "status": "queued"}]}},
+    {"step": 2, "client": "bob", "cmd": "snapshot", "expect": {"result": {"pending_count": 1}, "contains": [{"client_message_id": "$m4", "status": "queued"}]}},
+
+    {"step": 3, "client": "alice", "cmd": "offline", "args": {"enabled": false}},
+    {"step": 3, "client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}}},
+    {"step": 3, "client": "alice", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m3", "status": "accepted"}], "absent": ["$m4"]}},
+
+    {"step": 4, "client": "alice", "cmd": "offline", "args": {"enabled": true}},
+
+    {"step": 5, "client": "bob", "cmd": "offline", "args": {"enabled": false}},
+    {"step": 5, "client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}}},
+    {"step": 5, "client": "bob", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m3", "sender": "alice", "text": "Queued by Alice while offline", "status": "accepted"}, {"client_message_id": "$m4", "status": "accepted"}]}},
+    {"step": 5, "client": "alice", "cmd": "snapshot", "expect": {"absent": ["$m4"]}, "note": "Alice is offline and has not received Bob's message"},
+
+    {"step": 6, "client": "alice", "cmd": "offline", "args": {"enabled": false}},
+    {"step": 6, "client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok"}}},
+    {"step": 6, "client": "alice", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m4", "sender": "bob", "text": "Queued by Bob while offline", "status": "accepted"}]}},
+
+    {"step": "end", "client": "alice", "cmd": "shutdown"},
+    {"step": "end", "client": "bob", "cmd": "shutdown"}
+  ]
+}

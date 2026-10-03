@@ -1,0 +1,18 @@
+{
+  "description": "Message text validation. Length is UTF-8 bytes. Valid text must round-trip byte-for-byte. behavior.md section 3.",
+  "cases": [
+    {"input": "hi", "utf8_bytes": 2, "valid": true},
+    {"input": "", "utf8_bytes": 0, "valid": false},
+    {"input": " ", "utf8_bytes": 1, "valid": true},
+    {"input": "  padded  ", "utf8_bytes": 10, "valid": true, "note": "whitespace preserved"},
+    {"input": "line1\nline2", "utf8_bytes": 11, "valid": true},
+    {"input": "\u00e9", "utf8_bytes": 2, "valid": true},
+    {"input": "e\u0301", "utf8_bytes": 3, "valid": true, "note": "must not be normalized to U+00E9"},
+    {"input": "\ud83d\udc4b", "utf8_bytes": 4, "valid": true, "note": "waving hand emoji"},
+    {"input": {"repeat": "a", "count": 4096}, "utf8_bytes": 4096, "valid": true},
+    {"input": {"repeat": "a", "count": 4097}, "utf8_bytes": 4097, "valid": false},
+    {"input": {"repeat": "\ud83d\udc4b", "count": 1024}, "utf8_bytes": 4096, "valid": true},
+    {"input": {"repeat": "\ud83d\udc4b", "count": 1025}, "utf8_bytes": 4100, "valid": false},
+    {"raw_json": "\"\\ud800\"", "valid": false, "note": "lone surrogate; server-side test only"}
+  ]
+}

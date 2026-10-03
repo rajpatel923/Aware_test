@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+venv/
+.pytest_cache/
+*.log
+
+# SQLite test databases
+*.db
+
+# macOS
+.DS_Store

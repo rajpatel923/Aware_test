@@ -1,0 +1,33 @@
+{
+  "description": "The server restarts mid-session; clients detect the new epoch via SERVER_EPOCH_CHANGED and enter Server-reset state. After reset_session each client adopts the new epoch and resumes normally. Pending messages sent before the restart are resubmitted with their original IDs; already-accepted messages are not resent. behavior.md 10.1–10.5, 11.1–11.7. Run with each language as alice.",
+  "roles": [{"alice": "swift", "bob": "kotlin"}, {"alice": "kotlin", "bob": "swift"}],
+  "steps": [
+    {"client": "alice", "cmd": "identify", "args": {"name": "alice"}},
+    {"client": "bob",   "cmd": "identify", "args": {"name": "bob"}},
+
+    {"client": "alice", "cmd": "send", "args": {"recipient": "bob", "text": "Before restart"}, "bind": "m1"},
+    {"client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}}},
+    {"client": "bob",   "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "received": 1}}},
+
+    {"client": "alice", "cmd": "offline", "args": {"enabled": true}},
+    {"client": "alice", "cmd": "send", "args": {"recipient": "bob", "text": "Queued before restart"}, "bind": "m2"},
+
+    {"cmd": "server_restart", "note": "harness directive: stop the server process and start a fresh one; new epoch, empty state"},
+
+    {"client": "alice", "cmd": "offline", "args": {"enabled": false}},
+    {"client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "server_reset"}, "note": "epoch mismatch detected; client enters Server-reset"}},
+    {"client": "alice", "cmd": "snapshot", "expect": {"result": {"pending_count": 1}, "contains": [{"client_message_id": "$m2", "status": "queued"}], "note": "m2 still queued; m1 accepted row is kept locally"}},
+
+    {"client": "alice", "cmd": "reset_session"},
+    {"client": "alice", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "pending": 0}, "note": "m2 submitted with original ID; server accepts it"}},
+    {"client": "alice", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m2", "status": "accepted"}]}},
+
+    {"client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "server_reset"}}},
+    {"client": "bob", "cmd": "reset_session"},
+    {"client": "bob", "cmd": "sync_once", "expect": {"result": {"outcome": "ok", "received": 1}, "note": "receives m2; m1 is gone from the server (restart cleared it)"}},
+    {"client": "bob", "cmd": "snapshot", "expect": {"contains": [{"client_message_id": "$m2", "sender": "alice", "text": "Queued before restart", "status": "accepted"}]}},
+
+    {"client": "alice", "cmd": "shutdown"},
+    {"client": "bob",   "cmd": "shutdown"}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "description": "Username normalization. behavior.md section 2.",
+  "cases": [
+    {"input": "  Alice\n", "valid": true, "canonical": "alice"},
+    {"input": "BOB_99", "valid": true, "canonical": "bob_99"},
+    {"input": "\talice\r", "valid": true, "canonical": "alice"},
+    {"input": "a", "valid": true, "canonical": "a"},
+    {"input": {"repeat": "a", "count": 32}, "valid": true, "canonical": {"repeat": "a", "count": 32}},
+    {"input": "", "valid": false},
+    {"input": "   ", "valid": false},
+    {"input": "al ice", "valid": false},
+    {"input": "alice!", "valid": false},
+    {"input": "al-ice", "valid": false},
+    {"input": "\u0100lice", "valid": false},
+    {"input": "\u00a0alice", "valid": false},
+    {"input": "\u0130stanbul", "valid": false},
+    {"input": {"repeat": "a", "count": 33}, "valid": false}
+  ]
+}
