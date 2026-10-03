@@ -10,13 +10,15 @@ Before writing behavior, read `spec/behavior.md`, `spec/protocol.openapi.yaml`, 
 
 ## Commands
 
-None verified yet. Add each one here once it has actually run.
+All commands run from `backend/`.
 
 | Purpose | Command | Status |
 |---|---|---|
-| Install deps | — | not created |
-| Run server (single worker, no reload) | — | not created |
-| Tests | — | not created |
+| Create venv | `python -m venv .venv` | PASS |
+| Install deps | `.venv/bin/pip install -r requirements.txt` | PASS |
+| Run server (single worker, no reload) | `.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1` | PASS |
+| Run all tests | `.venv/bin/pytest tests/ -v` | PASS (27/27) |
+| Readiness check | `curl -s http://127.0.0.1:8000/v1/meta` | PASS (returns version + epoch) |
 
 ## Ownership
 

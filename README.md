@@ -1,6 +1,6 @@
 # Local Messaging App
 
-A fully local messaging system: one Python/FastAPI server and two independent clients — Swift (macOS headless + iOS app skeleton) and Kotlin (JVM headless + Android Compose app). Both clients speak the same HTTP/JSON protocol and are tested against the same server.
+A fully local messaging system: one Python/FastAPI server and two independent clients: Swift (macOS headless + iOS app skeleton) and Kotlin (JVM headless + Android Compose app). Both clients speak the same HTTP/JSON protocol and are tested against the same server.
 
 ---
 

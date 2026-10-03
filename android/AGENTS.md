@@ -10,15 +10,17 @@ Before writing behavior, read `spec/behavior.md`, `spec/protocol.openapi.yaml`, 
 
 ## Commands
 
-None verified yet. Add each one here once it has actually run. Always use the Gradle wrapper (`./gradlew`), never a system Gradle.
+Always use the Gradle wrapper (`./gradlew`), never a system Gradle. `ANDROID_HOME` must be set for Android modules.
 
 | Purpose | Command | Working dir | Status |
 |---|---|---|---|
-| Build all modules | — | `android/` | not created |
-| Unit and store tests | — | `android/` | not created |
-| Headless runner | — | `android/` | not created |
-| Build Android app | — | `android/` | not created |
-| Install on emulator | — | `android/` | not created |
+| Build all JVM modules | `./gradlew :messaging-core:build :messaging-http:build :messaging-storage:build :messaging-cli:build --no-daemon` | `android/` | PASS |
+| Build headless CLI jar | `./gradlew :messaging-cli:jar --no-daemon` | `android/` | PASS |
+| Run headless CLI | `java -jar messaging-cli/build/libs/messaging-cli.jar --url http://127.0.0.1:8000 --data-dir <dir>` | `android/` | PASS |
+| Kotlin acceptance tests | `python -m pytest test_kotlin_client.py -v` | `tests/` | PASS (7/7) |
+| Build Android app (debug) | `ANDROID_HOME=~/Library/Android/sdk ./gradlew :android-app:assembleDebug --no-daemon` | `android/` | PASS |
+| Install APK on emulator | `adb install android-app/build/outputs/apk/debug/android-app-debug.apk` | `android/` | PASS |
+| Launch app on emulator | `adb shell am start -n com.example.messaging.app/.MainActivity` | any | PASS |
 
 ## Ownership
 

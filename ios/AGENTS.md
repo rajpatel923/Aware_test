@@ -10,15 +10,15 @@ Before writing behavior, read `spec/behavior.md`, `spec/protocol.openapi.yaml`, 
 
 ## Commands
 
-None verified yet. Add each one here once it has actually run.
-
 | Purpose | Command | Working dir | Status |
 |---|---|---|---|
-| Build package | — | `ios/` | not created |
-| Unit and store tests | — | `ios/` | not created |
-| Headless runner | — | `ios/` | not created |
-| Build iOS app | — | `ios/` | not created |
-| Run on simulator | — | `ios/` | not created |
+| Build package + CLI | `swift build` | `ios/` | PASS |
+| Unit and store tests | `swift test` | `ios/` | PASS |
+| Run headless CLI | `.build/debug/messaging-cli --url http://127.0.0.1:8000 --data-dir <dir>` | `ios/` | PASS |
+| Build iOS app (simulator) | `xcodebuild -project MessagingApp.xcodeproj -scheme MessagingApp -destination 'platform=iOS Simulator,name=iPhone 17' build` | `ios/` | PASS (BUILD SUCCEEDED) |
+| Install on booted simulator | `xcrun simctl install booted <path-to-MessagingApp.app>` | any | PASS |
+| Launch on booted simulator | `xcrun simctl launch booted com.example.messaging.ios` | any | PASS |
+| Swift acceptance tests | `python -m pytest test_swift_client.py -v` | `tests/` | PASS (7/7) |
 
 ## Ownership
 
