@@ -1,7 +1,5 @@
 # Domain Model
 
-Status: draft, protocol version 1.
-
 This file defines the entities, value rules, and states shared by the server and both clients. Field names here are the canonical names; on the wire they appear exactly as written (`api.md`). Platform code may use idiomatic casing (`eventId` in Swift and Kotlin) but MUST map to these names one-to-one. Protocol rules (`P…`) are in `protocol.md`; outbox and sync behavior in `offline-behavior.md`; display in `ui.md`.
 
 ## 1. Username
@@ -55,7 +53,7 @@ D4.1 `text` MUST be valid Unicode and 1–4096 bytes when encoded as UTF-8. Leng
 
 D4.2 `text` is stored, sent, and shown exactly as entered: no trimming, no Unicode normalization, no character replacement. Whitespace-only text is valid.
 
-D4.3 Examples: `"hi"` is 2 bytes; `"é"` (U+00E9) is 2 bytes; `"e"` + combining accent U+0301 is 3 bytes and MUST NOT be converted to U+00E9; `"👋"` is 4 bytes. 4096 × `a` is valid; 4097 is not. 1024 × `👋` (4096 bytes) is valid; 1025 is not. Empty text and lone surrogates are invalid.
+D4.3 Examples: `"hi"` is 2 bytes; `"é"` is 2 bytes; `"e"` + combining accent is 3 bytes; `"👋"` is 4 bytes. 4096 × `a` is valid; 4097 is not. 1024 × `👋` (4096 bytes) is valid; 1025 is not. Empty text and lone surrogates are invalid.
 
 New body types are added by a new subsection here plus the steps in `protocol.md` P3.8.
 

@@ -2,11 +2,11 @@
 
 Status: draft, protocol version 1.
 
-This file defines the two screens every client must provide and how each piece of state is displayed. It adds no behavior; every rule that affects what the user sees is in `domain.md`, `protocol.md`, and `offline-behavior.md`. Platform implementation choices (SwiftUI vs Compose, observable model vs ViewModel) are in `platform/ios.md` and `platform/android.md`. Rules carry IDs (`U…`).
+This file defines the two screens every client must provide and how each piece of state is displayed. It adds no behavior; every rule that affects what the user sees is in `domain.md`, `protocol.md`, and `offline-behavior.md`. Platform implementation choices are in `platform/ios.md` and `platform/android.md`. Rules carry IDs (`U…`).
 
 ## 1. Screens
 
-Two screens are required. No other screens are required in v1.
+Two screens are required. No other screens are required.
 
 ### 1.1 Identify screen
 
@@ -79,7 +79,7 @@ Each event row shows a status badge:
 | Status | Badge | Meaning |
 |---|---|---|
 | `queued` | Clock or hourglass | Saved locally, not yet submitted |
-| sending | Spinner (transient, never persisted — `domain.md` D6.4) | Submission currently in flight |
+| `sending` | Spinner (transient, never persisted — `domain.md` D6.4) | Submission currently in flight |
 | `accepted` | Single check | Server confirmed receipt |
 | `failed` | Exclamation or ✗ | Permanently rejected; `failure_code` available |
 | `received` | No badge, or distinct row style | Incoming event from another user |

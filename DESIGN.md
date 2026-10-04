@@ -53,7 +53,6 @@ The spec is split by concern, and each topic has exactly one owning file:
 - `test.md`: runner contract, scenarios, fixtures
 - `platform/ios.md`, `platform/android.md`: platform choices and commands
 
-**Why split.** Agents read only the files relevant to a task, which keeps context small. A change to retry timing touches one file, not five. Each file opens by naming what it owns and where neighboring topics live, so no rule is defined twice.
 
 **Why the protocol is separate from the API.** The protocol (idempotency, sequencing, cursors) is the hard part and is transport-independent. If polling were replaced with WebSockets, `api.md` would change and `protocol.md` would not.
 
@@ -68,7 +67,7 @@ The spec is split by concern, and each topic has exactly one owning file:
 - **Server epoch** (P4, P10). The in-memory server loses everything on restart. The epoch lets clients detect that instead of reusing a cursor that no longer means anything.
 - **Polling, not push.** Short polling has fewer connection states than WebSockets and makes replay trivial. The cost is a second of latency and some empty requests, which is acceptable for a local example.
 - **Pull before submit** (`offline-behavior.md` O5.3). This fixes the order of events in the assignment's final step, so both clients produce the same trace, not just the same end state.
-- **Strict requests, tolerant responses** (`api.md` A1.6). The server rejects unknown request fields; clients ignore unknown response fields. The server can grow without breaking older generated clients.
+- **Strict requests and responses** (`api.md` A1.6). The server rejects unknown request fields; clients ignore unknown response fields. The server can grow without breaking older generated clients.
 
 ## 6. Client architecture
 
@@ -104,10 +103,6 @@ The harness separates analysis, implementation, and verification into four roles
 - **Unit tests** per client, with injected transport and clock for cases the cross-client harness cannot produce (`test.md` section 7).
 - **Cross-client scenarios** (`test.md` section 5): Gherkin scenarios using a fixed step vocabulary, each run twice with the languages swapped between Alice and Bob. They include the assignment scenario plus lost acknowledgements, lost pages, and restarts.
 - **Native checks**: each app builds and runs the main flow. A headless pass alone does not count.
-
-**Why Gherkin with a fixed vocabulary.** Evaluators can read a scenario against the assignment at a glance, and every step maps to exactly one runner command, so scenarios run without hand-written step code that could drift from the spec.
-
-**Why fault injection.** Most messaging bugs hide in lost responses and retries. The runner can drop a response after the server has processed it, which directly tests the idempotency and cursor rules.
 
 ## 9. Evolution
 

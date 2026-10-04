@@ -1,7 +1,5 @@
 # Test Specification
 
-Status: draft, protocol version 1.
-
 This file defines how conformance is proven: the headless runner contract every client implements, a fixed step vocabulary, the required scenarios, and validation fixtures. Expected results here are the oracle. They MUST NOT be edited to make failing code pass; change them only together with the spec rule they test. Rules carry IDs (`T…`).
 
 ## 1. Test levels

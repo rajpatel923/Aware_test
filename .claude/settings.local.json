@@ -1,14 +1,25 @@
 {
-  "env": {
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787"
-  },
   "permissions": {
     "allow": [
       "Bash(git -C /Users/rajpatel/Documents/GitHub/Spec_drive log --oneline -20)",
       "Bash(git -C /Users/rajpatel/Documents/GitHub/Spec_drive status --short)",
       "Bash(pip install *)",
       "Bash(pytest tests/ -v)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(swift build *)",
+      "Bash(swift test *)",
+      "Bash(gradle --version)",
+      "Bash(java --version)",
+      "Bash(chmod +x /Users/rajpatel/Documents/GitHub/Spec_drive/clients/android/gradlew)",
+      "Bash(curl -fsSL -o gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v8.7.0/subprojects/wrapper/src/main/groovy/org/gradle/wrapper/GradleWrapperMain.groovy)",
+      "Bash(export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home)",
+      "Bash(./gradlew :core:test)",
+      "Bash(./gradlew :core:test --info)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :core:test --info)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :store:test)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :store:test --stacktrace)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :runner:installDist)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :http:compileKotlin)"
     ]
   }
 }

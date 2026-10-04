@@ -24,11 +24,12 @@ Path: `.agent/task.md`. This file orders the work defined in `AGENTS.md` and `.a
 | C01 | pending | D03 | `spec/behavior.md` |
 | C02 | pending | C01 | `spec/protocol.openapi.yaml` |
 | C03 | pending | C02 | `spec/scenarios/` and headless runner contract |
+| SPEC01 | done | D02, D04 | Full spec analysis for first generation; all rules classified; gaps and acceptance scenarios documented |
 | E01 | pending | none | Toolchain and environment inventory |
 | B01 | pending | C02, D05, E01 | Python server in `backend/` |
 | V01 | pending | C03, E01 | Cross-client test runner in `tests/` |
-| A01 | pending | C03, D06, B01 | Swift core, adapters, headless runner |
-| A02 | pending | C03, D07, B01 | Kotlin core, adapters, headless runner |
+| A01 | done | C03, D06, B01, SPEC01 | Swift core, adapters, headless runner |
+| A02 | done | C03, D07, B01, SPEC01 | Kotlin core, adapters, headless runner |
 | X01 | pending | A01, A02, V01 | Cross-language interoperability and fault tests |
 | N01 | pending | A01 | SwiftUI app on simulator or device |
 | N02 | pending | A02 | Compose app on emulator or device |
@@ -43,6 +44,78 @@ Default order: D01, D05–D07, C01–C03, E01, B01, V01, A01, A02, X01, N01, N02
 **D02–D04 — Core documents.** Authored and checked for internal consistency (paths, statuses, scenario wording). This establishes nothing about implementation.
 
 **D05–D07 — Platform instructions.** Each refines `AGENTS.md` for one folder without duplicating the design or changing shared behavior: correct paths, layer boundaries, platform checks (commands marked unverified until run), no secrets or machine-specific settings. Done on document review.
+
+**SPEC01 — Specification analysis: first generation.** Full analysis of all spec files for the first generation of `clients/ios/` (Swift) and `clients/android/` (Kotlin). Completed by the Specification Analyzer role on 2026-10-04.
+
+**Note on C01–C03:** These tasks predate the current `spec/` directory. The spec files already fulfil their intent: `domain.md` + `protocol.md` + `api.md` + `offline-behavior.md` cover C01's behavior-spec goal; `api.md` covers C02's HTTP-contract goal; `test.md` covers C03's scenarios-and-runner-contract goal. C01–C03 should be closed as `done` once the team confirms the existing files are authoritative; in the meantime SPEC01 treats them as complete.
+
+**Affected rule IDs — shared (both clients must implement identically):**
+
+Domain: D1.1, D1.2, D1.3, D2.1, D3.1, D3.2, D3.3, D4.1, D4.2, D4.3, D5.1, D5.2, D5.3, D6.1, D6.2, D6.3, D6.4, D7.1, D8.1.
+
+Protocol: P2.1–P2.5, P3.1–P3.9, P4.1–P4.4, P5.1–P5.7, P6.1–P6.6, P7.1–P7.7, P8.1–P8.3, P9 (error table), P10.1–P10.3.
+
+API: A1.1–A1.6, A2.1, A3.1–A3.7, A4.1–A4.2, A5.1–A5.3.
+
+Offline: O1.1–O1.3, O2.1–O2.6, O3.1–O3.3, O4.1–O4.6, O5.1–O5.5, O6.1–O6.4, O7.1, O8.1–O8.2, O9.1–O9.2, O10.1–O10.5, O11.1–O11.3.
+
+UI: U1.1–U1.3, U2.1–U2.3, U3.1–U3.4, U4.1–U4.2, U5.1–U5.2, U6.1–U6.2, U7.1–U7.4.
+
+Test: T1.1–T1.3, T2.1–T2.7, T3.1–T3.3, T4.1–T4.2.
+
+**Affected rule IDs — iOS only:** I1.1–I1.2, I2.1–I2.2, I3.1–I3.5, I4.1–I4.4, I5.1–I5.3, I6.1–I6.3, I7.1–I7.4, I8.1–I8.3.
+
+**Affected rule IDs — Android only:** K1.1–K1.3, K2.1–K2.2, K3.1–K3.5, K4.1–K4.4, K5.1–K5.3, K6.1–K6.3, K7.1–K7.4, K8.1–K8.4.
+
+**Server-only (not generated, but clients must handle their responses):** P6.1–P6.6, A3.3, A3.6, A4.1.
+
+**Acceptance scenarios that must pass (both role assignments each):**
+- S1: Independent offline clients — full offline/online cycle (the assignment scenario).
+- S2: Lost acknowledgement — idempotent retry via fault injection; server stores once.
+- S3: Lost pull response — page not committed on first pull; second pull stores event exactly once.
+- S4: Queue survives restart — outbox persists across process death; sent after relaunch.
+- S5: Server restart and recovery — `server_reset` state, `reset_session`, outbox resubmitted with original envelopes, no cursor reuse.
+
+**Client-only unit tests (test.md section 7 — no cross-client harness):**
+- Unknown type stored, cursor advanced, sync continues (P3.5).
+- Invalid page (wrong recipient / non-increasing seq / bad cursor) → `protocol_error`, nothing committed (P7.3).
+- Mismatched submission response → `protocol_error` (P5.5).
+- Enqueue during in-flight submission succeeds without blocking (O2.5).
+- Concurrent sync triggers run one cycle; stale-generation results not committed (O6.1, O6.3).
+
+**Open questions — [QUESTION] items with assumed defaults:**
+
+Q1. **`accepted_at` display format**: Spec omits display format. Assumed: platform-idiomatic local time. Free choice.
+
+Q2. **`local_order` starting value**: Spec says "increases by one, never reused." Assumed: starts at 1 for the first event in a fresh data directory.
+
+Q3. **`last_error` visibility**: Set in O4.3 on outbox entry; UI spec (U5.2) only exposes `failure_code` for `failed` events. Assumed: `last_error` is internal diagnostic state, not displayed.
+
+Q4. **Sync state persistence across restarts**: O10.4 says "reads sync state from storage" but does not list which enum values are stored. Assumed: states are *derived* on startup, not stored as a named enum. `server_reset` is re-detected on first metadata fetch when stored epoch ≠ server epoch. `incompatible` and `protocol_error` are NOT persisted — restart allows a fresh sync attempt. `storage_error` cannot be stored when storage is broken. This interpretation is consistent with "resumes exactly where the last commit left it" referring to the stored sync position (epoch + cursor), not the in-memory sync mode.
+
+Q5. **T2.6 / T2.7 numbering**: The two rules appear out of numeric order in `test.md` (T2.7 precedes T2.6 in the document). Semantic meaning of each is clear; follow the meaning regardless of order.
+
+Q6. **Self-addressed event conversation**: D5.2 stores self-addressed events as `outgoing`. D9 defines a conversation as events where "the peer is the other party." For alice→alice, peer = alice; the event appears in "alice's conversation with alice." This is consistent; no scenario tests it.
+
+Q7. **Gradle wrapper bootstrap (K1.3)**: Generating the wrapper requires a local Gradle install (`gradle wrapper`). This is an E01 prerequisite; Android generation cannot begin until E01 confirms local Gradle availability.
+
+Q8. **Library version pinning**: GRDB version (I1.2) and all Android library versions (K1.2) depend on toolchain recorded in E01. iOS and Android generation must wait for E01 to complete.
+
+**[MISSING TEST] items (behavior specified, not covered by any scenario):**
+
+MT1. **Epoch separator display (U3.4)**: No scenario asserts the visual separator between old-epoch and new-epoch events in the conversation view after S5's server restart.
+
+MT2. **`last_error` after outcome-unknown failure**: No scenario inspects this field after O4.3 sets it.
+
+MT3. **Self-addressed event display**: No scenario tests alice sending to alice and viewing that conversation.
+
+MT4. **S5 Bob's locally-stored m1 after recovery**: S5 does not assert that Bob's pre-restart m1 (still in local storage) remains visible in the conversation view after Bob resets session.
+
+MT5. **Restart from `protocol_error` / `incompatible`**: No scenario covers entering an error state, restarting the app, and verifying sync resumes.
+
+**Blockers:** None. All gaps have assumed defaults. The sole hard prerequisite is **E01** (toolchain inventory) before library versions can be pinned in iOS and Android generation.
+
+---
 
 **C01 — Behavior spec.** Settle identity normalization and persistence, text and UTF-8 limits, message keys, offline enqueue and flush, acceptance versus receipt, display order, retry and terminal errors, cursor rules, self-send, and server-restart limits. Must resolve the open question in design section 15 (how clients leave the "Server reset" state, and what happens to pending messages). Record the design's default values (timeouts, polling, backoff, page size, limits) without claiming they were benchmarked. Done when every required behavior and failure case has an explicit rule with examples.
 
@@ -88,8 +161,12 @@ Message texts come from `spec/scenarios/`. Also test a lost POST response, a rep
 | E-D02 | D02 | `AGENTS.md` authored; paths and statuses checked | Any command or implementation |
 | E-D03 | D03 | `design.md` authored; section 15 lists open questions | Builds, tests, or dependency versions |
 | E-D04 | D04 | This file authored; unique IDs, valid statuses, no dependency cycles | Execution of any task |
+| E-SPEC01 | SPEC01 | All spec files read (domain.md, protocol.md, api.md, offline-behavior.md, ui.md, test.md, platform/ios.md, platform/android.md, product.md, AGENTS.md); all rules classified by platform; 8 [QUESTION] items resolved with assumed defaults; 5 [MISSING TEST] items identified; 5 acceptance scenarios listed; 0 [BLOCKER] items | Library versions (E01 required); any implementation or build result |
 
-No implementation evidence exists yet.
+| E-A01-build | A01 | `cd clients/ios && swift build` → exit 0; Build complete (1.25 s); 1 warning (Swift 6 @Sendable on global async function in main.swift — not an error); 0 errors. Toolchain: Apple Swift 5.10, macOS. | Native iOS Xcode build (requires N01); cross-client scenarios (requires B01, A02, V01) |
+| E-A01-test | A01 | `cd clients/ios && swift test` → exit 0; 37 tests, 0 failures: 9 StorageTests (MessagingStoreTests) + 12 TextValidationTests + 16 UsernameTests (MessagingCoreTests). | Integration with real server; cross-client interop; native iOS UIKit/SwiftUI |
+| E-A02-build | A02 | `cd clients/android && JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :runner:installDist` → exit 0; all 5 modules compiled; runner binary at `runner/build/install/runner/bin/runner`. Toolchain: JDK 17, Kotlin 1.9.24, AGP 8.4.2, SQLDelight 2.0.2, Gradle 8.7, macOS. Build fixes applied: (1) JUnit 4 requires void test methods — block-body `assertFailsWith`; (2) SQLDelight 2.x artifact is `sqlite-driver` not `jdbc-sqlite-driver`; (3) `Schema.create()` runs DDL only, not DML — explicit `seedSingletons()` call after create; (4) missing `coroutines-core` dep in `:http`; (5) missing `import kotlinx.serialization.*` for reified `encodeToString`; (6) `continue` in inline lambdas experimental in Kotlin 1.9.x — replaced with explicit `if/continue`. | Android emulator runtime (N02); cross-client scenarios (requires B01, V01) |
+| E-A02-test | A02 | `cd clients/android && JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :core:test :store:test` → exit 0; 36 tests, 0 failures: UsernameTest 15/15 (D1.1/D1.3, K3.1), TextMessageTest 12/12 (D4.1/D4.3, K3.2), StorageTest 9/9 (D2.1, D5.1, O2.3, O4.1, O4.2, P7.4, O11.2). | Integration with real server; cross-client scenarios (requires B01, V01); Android emulator |
 
 ## Completion and scope
 

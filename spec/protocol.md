@@ -1,6 +1,5 @@
 # Messaging Protocol
 
-Protocol version: 1. Status: draft.
 
 This file defines how clients and the server exchange messages: the event envelope, how new event types are added, idempotent submission, sequencing, cursors, server sessions, and delivery guarantees. It is transport-independent and normative. Rules carry stable IDs (`P5.2`) so generated code, tests, and reviews can cite them.
 

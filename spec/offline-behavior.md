@@ -1,6 +1,5 @@
 # Offline Behavior
 
-Status: draft, protocol version 1.
 
 This file defines how a client stays usable without the server and how it catches up: creating events locally, the outbox, the sync cycle, retries, connectivity, app lifecycle, and recovery. Entities and statuses are in `domain.md`; wire rules in `protocol.md`; display of sync state in `ui.md`; test controls and scenarios in `test.md`. Rules carry IDs (`O…`).
 
