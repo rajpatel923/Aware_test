@@ -34,10 +34,10 @@ Failure: `{"id": "7", "ok": false, "error": {"code": "...", "message": "..."}}`
 | `sync_once` | none | `state`, `pulled`, `accepted`, `failed`, `pending` |
 | `snapshot` | none | `username`, `epoch`, `cursor`, `state`, `outbox`, `events` |
 | `fault` | `drop_next_response`: `submit` or `pull` | `armed` |
-| `reset_session` | none | `epoch`, `cursor` (pending `protocol.md` P10.3) |
+| `reset_session` | none | `epoch`, `cursor` |
 | `shutdown` | none | `{}` |
 
-T2.1 Each entry in `events` has every `domain.md` local-event field: `event_id`, `type`, `sender`, `recipient`, `body`, `seq`, `accepted_at`, `direction`, `status`, `failure_code`. `outbox` lists `event_id`s in `local_order`.
+T2.1 Each entry in `events` has every `domain.md` local-event field: `event_id`, `type`, `sender`, `recipient`, `body`, `seq`, `accepted_at`, `direction`, `status`, `local_order`, `failure_code`, `epoch`. `outbox` lists `event_id`s in `local_order`.
 
 T2.2 `state` is one of the sync states in `offline-behavior.md` section 7.
 
@@ -45,7 +45,7 @@ T2.3 `network {"online": false}` closes the client's transport gate. Requests th
 
 T2.4 `fault` makes the transport discard the next matching response after the server has processed the request, then report a timeout. It lives in the runner's transport wrapper, never in messaging logic.
 
-T2.5 Runners start in manual mode (`offline-behavior.md` O10.1a). Start-up options are base URL and data directory; exact flags are defined in `platform/ios.md` and `platform/android.md`.
+T2.5 Runners start in manual mode (`offline-behavior.md` O10.1). Start-up options are base URL and data directory; exact flags are defined in `platform/ios.md` and `platform/android.md`.
 
 T2.7 `sync_once` runs exactly one cycle immediately, ignoring backoff and poll delays, and returns the state the cycle ended in: `idle`, `syncing` (more work remains), `offline`, or an error state. It never returns `paused`.
 
@@ -62,6 +62,8 @@ Scenarios are standard Gherkin (`Feature`, `Scenario Outline`, `Examples`), so a
 - `<User> goes offline` / `goes online` → `network`.
 - `<User> syncs` → `sync_once`, repeated while `state` is `syncing`, at most 10 times. The step fails if the client is still `syncing` after 10 cycles, or ends in an error state the scenario did not expect.
 - `<User> restarts` → `shutdown`, then start with the same data directory.
+- `the server restarts` — stop the current server process and start a new one; new epoch, `seq` from 1, empty mailboxes, no event keys (`protocol.md` P10.1).
+- `<User> resets session` → `reset_session`; the client adopts the new epoch and sets cursor to 0 in one transaction (`protocol.md` P10.3).
 - `the next <submit|pull> response to <User> is lost` → `fault`.
 - `Then` steps → `snapshot`, then compare as below.
 
@@ -242,9 +244,52 @@ Scenario Outline: Queue survives restart
 
 Proves `offline-behavior.md` O3.1 and O10.4.
 
-### S5: Server restart (pending `protocol.md` P10.3)
+### S5: Server restart and recovery
 
-To be written once the recovery decision is made. Minimum assertions: after a server restart, a syncing client reaches state `server_reset`, keeps every local event, and does not use its old cursor.
+```gherkin
+Feature: Messaging conformance
+
+Scenario Outline: Server restart and recovery
+  Given a fresh server
+  And Alice's client is <alice_lang> with empty storage
+  And Bob's client is <bob_lang> with empty storage
+  When Alice identifies as "alice"
+  And Bob identifies as "bob"
+
+  # Establish pre-restart state
+  When Alice sends "Before restart" to "bob" as m1
+  And Alice syncs
+  And Bob syncs
+  Then m1 is accepted on Alice
+  And Bob holds m1 once from "alice" with text "Before restart" as received
+
+  # Queue a message; restart the server before it can be submitted
+  When Alice sends "After restart" to "bob" as m2
+  And the server restarts
+  And Alice syncs
+  Then Alice's state is server_reset
+  And Alice holds m1 once from "alice" with text "Before restart" as accepted
+  And m2 is queued on Alice
+  And Alice's outbox contains m2
+
+  # Recovery: Alice adopts new epoch, resubmits outbox
+  When Alice resets session
+  And Alice syncs
+  Then m2 is accepted on Alice
+  And Alice's outbox is empty
+
+  # Bob recovers and receives m2 (m1 is gone from the server; Bob holds it locally only)
+  When Bob resets session
+  And Bob syncs
+  Then Bob holds m2 once from "alice" with text "After restart" as received
+
+  Examples:
+    | alice_lang | bob_lang |
+    | swift      | kotlin   |
+    | kotlin     | swift    |
+```
+
+Proves `protocol.md` P10.1–P10.3 and `offline-behavior.md` O9.1–O9.2: the client enters `server_reset`, keeps all local data, resubmits the outbox with original envelopes after recovery, and never reuses the old cursor.
 
 ## 6. Validation fixtures
 
