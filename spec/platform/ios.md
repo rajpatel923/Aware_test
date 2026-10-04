@@ -1,7 +1,5 @@
 # Platform: iOS (Swift)
 
-Status: draft. Rules carry IDs (`I…`).
-
 This file defines how the shared spec is realized on iOS: language, libraries, structure, platform-specific pitfalls, and commands. It adds no behavior. Every behavioral rule comes from `domain.md`, `protocol.md`, `api.md`, `offline-behavior.md`, `ui.md`, and `test.md`. If this file seems to require behavior those files do not define, that is a spec bug: report it.
 
 ## 1. Toolchain
