@@ -1,5 +1,13 @@
 {
   "env": {
     "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/rajpatel/Documents/GitHub/Spec_drive log --oneline -20)",
+      "Bash(git -C /Users/rajpatel/Documents/GitHub/Spec_drive status --short)",
+      "Bash(pip install *)",
+      "Bash(pytest tests/ -v)"
+    ]
   }
 }
