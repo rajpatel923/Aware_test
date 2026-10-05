@@ -9,12 +9,12 @@ A code generator that turns a written specification into two independent messagi
 | Path               | What it is                                           | Authored by |
 |--------------------|------------------------------------------------------|---|
 | `spec/`            | Source of truth for all behavior                     | Hand-written |
-| `skills/`          | Role-specific prompt files used by the generator     | Hand-written |
+| `.agents/skills/`  | Role-specific prompt files used by the generator     | Hand-written |
 | `server/`          | Small FastAPI server (not under generator discipline) | Hand-written |
 | `AGENTS.md`        | Agent roles, permissions, and handoff rules          | Hand-written |
 | `CLAUDE.md`        | Per-session agent instructions                       | Hand-written |
 | `DESIGN.md`        | Full design rationale                                | Hand-written |
-| `.agent/TASKS.md`  | Work queue and verification evidence                 | Hand-written + agent-updated |
+| `.agents/TASKS.md` | Work queue and verification evidence                 | Hand-written + agent-updated |
 | `clients/ios/`     | **Generated** Swift client                           | Generated |
 | `clients/android/` | **Generated** Kotlin client                          | Generated |
 
@@ -44,20 +44,20 @@ When the spec and implementation disagree, the spec wins. When two spec files di
 
 ## The agentic harness
 
-The generator works through four roles defined in `AGENTS.md`. Each role is a Claude Code slash command backed by a prompt file in `skills/`:
+The generator works through four roles defined in `AGENTS.md`. Each role is a Claude Code slash command backed by a prompt file in `.agents/skills/`:
 
 | Role | Command | Skill file | What it does |
 |---|---|---|---|
-| Specification Analyzer | `/analyze` | `skills/analyze.md` | Reads spec, identifies affected rules, flags gaps, writes plan to `.agent/TASKS.md`. Writes no code. |
-| iOS Implementer | `/generate-ios` | `skills/generate-ios.md` | Generates Swift client in `clients/ios/` from spec only. Never reads `clients/android/`. |
-| Android Implementer | `/generate-android` | `skills/generate-android.md` | Generates Kotlin client in `clients/android/` from spec only. Never reads `clients/ios/`. |
-| Verifier | `/verify` | `skills/verify.md` | Builds both clients, runs all scenarios in both role assignments, records PASS/FAIL/NOT RUN. Cannot edit code or spec. |
+| Specification Analyzer | `/analyze` | `.agents/skills/analyze.SKILL.md` | Reads spec, identifies affected rules, flags gaps, writes plan to `.agents/TASKS.md`. Writes no code. |
+| iOS Implementer | `/generate-ios` | `.agents/skills/generate-ios.SKILL.md` | Generates Swift client in `clients/ios/` from spec only. Never reads `clients/android/`. |
+| Android Implementer | `/generate-android` | `.agents/skills/generate-android.SKILL.md` | Generates Kotlin client in `clients/android/` from spec only. Never reads `clients/ios/`. |
+| Verifier | `/verify` | `.agents/skills/verify.SKILL.md` | Builds both clients, runs all scenarios in both role assignments, records PASS/FAIL/NOT RUN. Cannot edit code or spec. |
 
 Roles run in order: Analyzer → Implementers (either order or parallel) → Verifier.
 
 **Tool:** Claude Code CLI (`claude`). The evaluator runs the slash commands in a Claude Code session open at the repository root.
 
-When you type `/generate-ios`, Claude Code loads `skills/generate-ios.md` as the agent's instructions. The agent reads only `spec/`, writes only `clients/ios/`, and cites the rule ID on every piece of behavior logic. `skills/` files are the authoritative prompt templates; `.claude/commands/` files are one-liners that load the skill and invoke the role. Improving a skill never requires touching the command file.
+When you type `/generate-ios`, Claude Code loads `.agents/skills/generate-ios.SKILL.md` as the agent's instructions. The agent reads only `spec/`, writes only `clients/ios/`, and cites the rule ID on every piece of behavior logic. `.agents/skills/` files are the authoritative prompt templates; `.claude/commands/` files are one-liners that load the skill and invoke the role. Improving a skill never requires touching the command file.
 
 ---
 
@@ -91,7 +91,7 @@ These can be run in parallel in two Claude Code sessions, or sequentially. Each 
 /verify
 ```
 
-Each command records its handoff in `.agent/TASKS.md`. The full workflow procedure is in `.agent/WORKFLOW.md`.
+Each command records its handoff in `.agents/TASKS.md`. The full workflow procedure is in `.agents/WORKFLOW.md`.
 
 ---
 
@@ -152,7 +152,7 @@ pip install -r requirements.txt
 pytest test_cross_language.py -v
 ```
 
-Results are recorded in `.agent/TASKS.md` under task X01. A headless pass does not prove the native app works; both are required (`spec/test.md` T1.3).
+Results are recorded in `.agents/TASKS.md` under task X01. A headless pass does not prove the native app works; both are required (`spec/test.md` T1.3).
 
 ---
 
@@ -160,12 +160,12 @@ Results are recorded in `.agent/TASKS.md` under task X01. A headless pass does n
 
 | Artifact | Authored by |
 |---|---|
-| `spec/`, `DESIGN.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `skills/` | Hand-written by the author; AI (Claude) used for drafts, with human review and editing |
+| `spec/`, `DESIGN.md`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `.agents/skills/` | Hand-written by the author; AI (Claude) used for drafts, with human review and editing |
 | `server/` | Hand-written |
 | `harness/` | Hand-written |
 | `clients/ios/` | Generated by Claude Code running the iOS Implementer role (`/generate-ios`) |
 | `clients/android/` | Generated by Claude Code running the Android Implementer role (`/generate-android`) |
-| `.agent/TASKS.md` evidence sections | Updated by Claude Code running the Verifier role (`/verify`) |
+| `.agents/TASKS.md` evidence sections | Updated by Claude Code running the Verifier role (`/verify`) |
 
 Generated commits carry the prefix `gen(ios):` or `gen(android):` and state the model and spec revision used. Hand-written commits carry `spec:`, `server:`, `harness:`, `generator:`, or `docs:` prefixes.
 

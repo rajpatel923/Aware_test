@@ -1,6 +1,6 @@
 # Tasks: Local Messaging App
 
-Path: `.agent/TASKS.md`. This file tracks work, dependencies, acceptance criteria, open decisions, and evidence links. [AGENTS.md](../AGENTS.md) defines roles; [DESIGN.md](../DESIGN.md) describes the design; [spec/](../spec/) is the behavioral source of truth. Analysis lives in [analysis/SPEC01.md](analysis/SPEC01.md), environment observations in [ENVIRONMENT.md](ENVIRONMENT.md), and historical check results in [evidence/LEDGER.md](evidence/LEDGER.md).
+Path: `.agents/TASKS.md`. This file tracks work, dependencies, acceptance criteria, open decisions, and evidence links. [AGENTS.md](../AGENTS.md) defines roles; [DESIGN.md](../DESIGN.md) describes the design; [spec/](../spec/) is the behavioral source of truth. Analysis lives in [analysis/SPEC01.md](analysis/SPEC01.md), environment observations in [ENVIRONMENT.md](ENVIRONMENT.md), and historical check results in [evidence/LEDGER.md](evidence/LEDGER.md).
 
 ## How to use this file
 
@@ -16,9 +16,9 @@ Path: `.agent/TASKS.md`. This file tracks work, dependencies, acceptance criteri
 |---|---|---|---|
 | D01 | pending | none | Root `CLAUDE.md` consistent with `AGENTS.md` |
 | D02 | pending | none | Root `AGENTS.md` |
-| D03 | pending | D02 | `.agent/design.md` |
-| D04 | pending | D03 | `.agent/task.md` (this file) |
-| D05 | pending | D04 | `backend/AGENTS.md` |
+| D03 | pending | D02 | `.agents/design.md` |
+| D04 | pending | D03 | `.agents/TASKS.md` (this file) |
+| D05 | pending | D04 | `server/AGENTS.md` |
 | D06 | pending | D04 | `ios/AGENTS.md` |
 | D07 | pending | D04 | `android/AGENTS.md` |
 | C01 | pending | D03 | `spec/behavior.md` |
@@ -27,7 +27,7 @@ Path: `.agent/TASKS.md`. This file tracks work, dependencies, acceptance criteri
 | SPEC01 | pending | D02, D04 | Full spec analysis for first generation; all rules classified; gaps and acceptance scenarios documented |
 | SPEC02 | pending | SPEC01 | Resolve Q4 restart recovery in the spec and define MT5 coverage |
 | E01 | pending | none | Toolchain and environment inventory |
-| B01 | pending | C02, D05, E01 | Python server in `backend/` |
+| B01 | pending | C02, D05, E01 | Python server in `server/` |
 | V01 | pending | C03, E01 | Cross-client test runner in `tests/` |
 | A01 | pending | C03, D06, B01, SPEC01 | Swift core, adapters, headless runner |
 | A02 | pending | C03, D07, B01, SPEC01 | Kotlin core, adapters, headless runner |
@@ -67,7 +67,7 @@ Default order: D01, D02-D04, D05–D07, C01–C03, SPEC01, SPEC02, E01, B01, V01
 
 **E01 — Environment.** Record the inventory in [ENVIRONMENT.md](ENVIRONMENT.md) and link probe evidence from this task. Inventory Python, Xcode and Swift, JDK, Gradle, and the Android SDK; pick compatible versions, ports, host addresses for simulators and emulators, and data-directory conventions. Done when each item is recorded as available, missing, or untested, with the probe commands used. macOS is required for all Swift and iOS checks; Linux results prove nothing about them.
 
-**B01 — Server.** Follow `backend/AGENTS.md`: FastAPI, one process and worker, in-memory storage, atomic accept-or-replay. Done when real endpoint tests pass for first acceptance, exact duplicate, conflicting key, concurrent retries, mailbox isolation, exclusive cursor paging, empty pages, invalid payloads, epoch mismatch, and the error envelope (including FastAPI validation errors). No auth, database, or brokers.
+**B01 — Server.** Follow `server/AGENTS.md`: FastAPI, one process and worker, in-memory storage, atomic accept-or-replay. Done when real endpoint tests pass for first acceptance, exact duplicate, conflicting key, concurrent retries, mailbox isolation, exclusive cursor paging, empty pages, invalid payloads, epoch mismatch, and the error envelope (including FastAPI validation errors). No auth, database, or brokers.
 
 **V01 — Test runner.** In `tests/`, launch the real server and real headless clients with separate data directories. Drive commands by awaiting structured results or bounded conditions, never fixed sleeps. Compare logical fields and bind IDs and sequences from responses. Provide fault controls (network outage, dropped response after real acceptance, repeated page, store reopen) outside app logic. Done when the runner's own assertions are tested, including one deliberately wrong outcome that must fail.
 

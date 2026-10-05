@@ -1,1 +1,1 @@
-Read the skill file at `skills/analyze.md` and follow its instructions exactly. You are acting as the Specification Analyzer role.
+Read the skill file at `.agents/skills/analyze.SKILL.md` and follow its instructions exactly. You are acting as the Specification Analyzer role.

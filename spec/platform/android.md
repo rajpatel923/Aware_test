@@ -8,7 +8,7 @@ This file defines how the shared spec is realized on Android: language, librarie
 - App minimum: Android 8.0 (API 26). Target and compile SDK: latest stable at E01.
 - Headless runner: JVM command-line application (macOS or Linux).
 - JDK 17. Gradle via the Gradle wrapper only, never a system `gradle` in normal use.
-- Exact versions are recorded in `.agent/TASKS.md` (E01).
+- Exact versions are recorded in `.agents/TASKS.md` (E01).
 
 K1.1 Libraries are limited to: Kotlin standard library, kotlinx.coroutines, kotlinx.serialization (JSON), **OkHttp**, **SQLDelight** (with its Android and JDBC SQLite drivers), Jetpack Compose, and AndroidX Lifecycle. No other dependency without a spec change. No Retrofit, Room, or DI framework.
 
@@ -94,7 +94,7 @@ K8.4 The harness runs the installed distribution, not `gradlew run`, because Gra
 
 ## 9. Commands
 
-All commands are **unverified** until run and recorded in `.agent/TASKS.md`. Working directory: the Android generated path.
+All commands are **unverified** until run and recorded in `.agents/TASKS.md`. Working directory: the Android generated path.
 
 | Purpose | Command |
 |---|---|

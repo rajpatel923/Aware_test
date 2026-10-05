@@ -19,7 +19,32 @@
       "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :store:test)",
       "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :store:test --stacktrace)",
       "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :runner:installDist)",
-      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :http:compileKotlin)"
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :http:compileKotlin)",
+      "Bash(xcodegen version *)",
+      "Bash(xcrun simctl *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\)['devices']; [print\\(k,v[0]['name'],v[0]['udid']\\) for k,v in d.items\\(\\) if 'iOS' in k and v]\")",
+      "Bash(xcodegen generate *)",
+      "Bash(xcodebuild -project MessagingApp.xcodeproj -scheme MessagingApp -destination 'platform=iOS Simulator,name=iPhone 18 Pro' build)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :app:assembleDebug)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb devices *)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -avd Pixel_9a -no-window -no-audio -no-snapshot-save)",
+      "Bash(echo \"Emulator starting, PID $!\")",
+      "Bash(~/Library/Android/sdk/platform-tools/adb install *)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb shell *)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb pull *)",
+      "Bash(xargs cat)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :core:test :http:test :store:test)",
+      "Bash(JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home ./gradlew :core:test :store:test --rerun-tasks)",
+      "Bash(uvicorn app.main:app --host 127.0.0.1 --port 8000)",
+      "Bash(curl -s http://127.0.0.1:8000/v1/meta)",
+      "Bash(/Users/rajpatel/Documents/GitHub/Spec_drive/clients/ios/.build/debug/runner --base-url http://127.0.0.1:8000 --data-dir /private/tmp/verify-ios-probe)",
+      "Bash(/Users/rajpatel/Documents/GitHub/Spec_drive/clients/ios/.build/debug/messaging-runner --base-url http://127.0.0.1:8000 --data-dir /private/tmp/verify-ios-probe)",
+      "Bash(/Users/rajpatel/Documents/GitHub/Spec_drive/clients/android/runner/build/install/runner/bin/runner --base-url http://127.0.0.1:8000 --data-dir /private/tmp/verify-android-probe)",
+      "Bash(/Users/rajpatel/Documents/GitHub/Spec_drive/clients/ios/.build/debug/messaging-runner --help)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python3 *)",
+      "Bash(lsof -ti:8000)",
+      "Bash(xargs kill -9)"
     ]
   }
 }

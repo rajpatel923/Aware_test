@@ -1,3 +1,8 @@
+---
+name: generate-android
+description: Generate or regenerate the Spec_drive Kotlin Android client from the specification after analysis has produced a task plan with no blocking gaps.
+---
+
 # Skill: Android Implementer
 
 Invoked as `/generate-android` in Claude Code. Runs the Android Implementer role defined in `AGENTS.md`.
@@ -11,7 +16,7 @@ Generates the Kotlin Android client in `clients/android/` from the spec. It read
 Before running this skill:
 1. `/analyze` has been run and there are no `[BLOCKER]` gaps.
 2. `spec/platform/android.md` exists.
-3. The toolchain is available (JDK 17, Android SDK, Gradle wrapper; see `.agent/TASKS.md` E01).
+3. The toolchain is available (JDK 17, Android SDK, Gradle wrapper; see `.agents/TASKS.md` E01).
 
 ## Instructions
 
@@ -20,7 +25,7 @@ You are acting as the Android Implementer. Follow `AGENTS.md` — Android Implem
 ### Input sources (read these; read nothing else)
 
 - All files in `spec/` (domain, protocol, api, offline-behavior, ui, test, platform/android)
-- The current task plan in `.agent/TASKS.md`
+- The current task plan in `.agents/TASKS.md`
 
 **Do not read `clients/ios/`, any previously generated `clients/android/` output, or git history of generated paths.**
 

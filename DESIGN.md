@@ -31,8 +31,8 @@ The core promise: delete the generated client code, run the generator, and get b
 ## 3. Repository shape
 
 - `spec/`: the source of truth. Hand-written.
-- `generator/` and `skills/`: the harness that turns the spec into clients. Hand-written.
-- `.agent/`: task tracking, workflow, and the generation boundary. Hand-written.
+- `generator/` and `.agents/skills/`: the harness that turns the spec into clients. Hand-written.
+- `.agents/`: task tracking, workflow, skills, and the generation boundary. Hand-written.
 - `AGENTS.md`, `CLAUDE.md`: agent instructions. Hand-written.
 - Server: a small hand-written process. The assignment allows it outside generator discipline, and keeping it hand-written gives the generated clients a fixed reference to conform to.
 - Cross-client test harness: hand-written, because it is the oracle. Generated code must never be able to rewrite the thing that judges it.
@@ -87,7 +87,7 @@ Each client is a UI-independent **core** with **adapters** around it:
 
 The harness separates analysis, implementation, and verification into four roles (`AGENTS.md`):
 
-1. **Specification Analyzer** reads the spec, lists affected rules by ID, flags gaps, and records a plan in `.agent/TASKS.md`. It writes no code.
+1. **Specification Analyzer** reads the spec, lists affected rules by ID, flags gaps, and records a plan in `.agents/TASKS.md`. It writes no code.
 2. **iOS Implementer** and 3. **Android Implementer** each generate one client from the spec and their platform file. Neither may read the other's code (principle 3).
 4. **Verifier** builds both clients, runs every scenario in both role assignments against the real server, and reports violations by rule ID. It cannot edit code, spec, or tests.
 

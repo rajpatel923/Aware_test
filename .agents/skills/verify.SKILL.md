@@ -1,3 +1,8 @@
+---
+name: verify
+description: Verify generated Spec_drive clients by building both platforms, running unit tests and cross-client scenarios, and recording conformance evidence after client generation.
+---
+
 # Skill: Verifier
 
 Invoked as `/verify` in Claude Code. Runs the Verifier role defined in `AGENTS.md`.
@@ -49,14 +54,14 @@ The following cases MUST be classified identically by both clients and the serve
 **Usernames:**
 - `"  Alice\n"` → `alice`
 - `"BOB_99"` → `bob_99`
-- `"Kate"` (Kelvin sign) → invalid (MUST NOT become `kate`)
+- `"Kate"` (Kelvin sign) → invalid (MUST NOT become `kate`)
 - `"Ālice"` → invalid
 - `a × 33` → invalid
 
 **`message.text`:**
 - `""` → invalid
 - `" "` → valid, preserved
-- `"é"` → valid, not normalized to `"é"`
+- `"é"` → valid, not normalized to `"é"`
 - `👋 × 1024` (4096 bytes) → valid
 - `👋 × 1025` (4100 bytes) → invalid
 
@@ -109,7 +114,7 @@ For each failure, identify the rule ID and route it:
 
 ### Step 8 — record evidence and handoff
 
-Update task X01 in `.agent/TASKS.md` with one entry per check:
+Update task X01 in `.agents/TASKS.md` with one entry per check:
 ```
 S1 Swift=Alice Kotlin=Bob | PASS | swift build 0 | ./gradlew :runner:installDist 0 | pytest -k S1 0
 ```

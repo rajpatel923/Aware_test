@@ -1,16 +1,16 @@
-# backend/AGENTS.md
+# server/AGENTS.md
 
-Rules for work under `backend/`. These refine root `AGENTS.md`; read both. Paths are relative to the repository root.
+Rules for work under `server/`. These refine root `AGENTS.md`; read both. Paths are relative to the repository root.
 
 ## Scope
 
-A small Python/FastAPI server that both clients talk to: one process, one worker, in-memory state that lasts until the process exits. Task B01 in `.agent/task.md`. Nothing below exists yet; do not create files just because they are listed here.
+A small Python/FastAPI server that both clients talk to: one process, one worker, in-memory state that lasts until the process exits. Task B01 in `.agents/TASKS.md`. Nothing below exists yet; do not create files just because they are listed here.
 
 Before writing behavior, read `spec/behavior.md`, `spec/protocol.openapi.yaml`, `spec/scenarios/`, and design sections 3–6. The spec wins over this file, the design, FastAPI defaults, and its generated OpenAPI. If the spec is missing or ambiguous, report it and continue only independent work.
 
 ## Commands
 
-All commands run from `backend/`.
+All commands run from `server/`.
 
 | Purpose | Command | Status |
 |---|---|---|
@@ -22,17 +22,17 @@ All commands run from `backend/`.
 
 ## Ownership
 
-Backend tasks own `backend/` only, including its tests and package config. Never edit `spec/`, `tests/`, root instructions, `.agent/task.md`, or client code; propose changes in the handoff instead. Never fix a server bug by weakening a shared expected result.
+Backend tasks own `server/` only, including its tests and package config. Never edit `spec/`, `tests/`, root instructions, `.agents/TASKS.md`, or client code; propose changes in the handoff instead. Never fix a server bug by weakening a shared expected result.
 
 ## Layout
 
-One app, four layers, under `backend/app/`:
+One app, four layers, under `server/app/`:
 - `main.py`, `config.py`: build the app, epoch, store, service, and routes once; parse settings. No business rules.
 - `api/routes.py`, `api/schemas.py`, `api/errors.py`: decode requests, validate wire shape, map results and errors to HTTP. Never touch store indexes.
 - `domain.py`, `service.py`: identity and text rules, immutable message records, typed errors, use cases. No FastAPI types.
 - `repository.py`, `memory_store.py`: the two atomic operations below, plus epoch, sequence counter, and indexes. No HTTP formatting.
 
-Tests live in `backend/tests/`; cross-client tests stay in `tests/`. Use plain typed Python and constructor injection: no DI container, event bus, or generic CRUD layer. Put each rule in one place; never duplicate normalization across handlers. Do not create empty files to match this list.
+Tests live in `server/tests/`; cross-client tests stay in `tests/`. Use plain typed Python and constructor injection: no DI container, event bus, or generic CRUD layer. Put each rule in one place; never duplicate normalization across handlers. Do not create empty files to match this list.
 
 ## State and concurrency
 
@@ -93,13 +93,13 @@ Test route behavior in-process, and also run a smoke test against the real liste
 
 ## AGENTS.md files
 
-Any new subdirectory added under `backend/` must include its own `AGENTS.md` that:
+Any new subdirectory added under `server/` must include its own `AGENTS.md` that:
 - References this file and root `AGENTS.md` as parents.
 - Describes the subdirectory's scope, layout, and commands.
 - Lists verified commands with working directory and exit status once they pass.
 
-Update this file whenever a task changes the layout, commands, or conventions for `backend/`.
+Update this file whenever a task changes the layout, commands, or conventions for `server/`.
 
 ## Done
 
-Review the diff and confirm only `backend/` changed. Commit coherent increments. Hand off per root `AGENTS.md`, listing any proposed spec changes.
+Review the diff and confirm only `server/` changed. Commit coherent increments. Hand off per root `AGENTS.md`, listing any proposed spec changes.

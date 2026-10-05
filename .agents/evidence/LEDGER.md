@@ -1,6 +1,6 @@
 # Evidence ledger
 
-Records of checks actually run in this generation run. Task definitions and statuses are in `.agent/TASKS.md`; procedures in `.agent/WORKFLOW.md`.
+Records of checks actually run in this generation run. Task definitions and statuses are in `.agents/TASKS.md`; procedures in `.agents/WORKFLOW.md`.
 
 ## Run
 
@@ -17,7 +17,7 @@ Records of checks actually run in this generation run. Task definitions and stat
 - Every entry has all fields below. A field that cannot be filled is written as `unknown`, never guessed.
 - A check that was not executed is not recorded here; mark it NOT RUN in the task's handoff instead.
 - Entries are append-only. To correct one, add a new entry that references it; never edit or delete the original.
-- A task in `.agent/TASKS.md` may be marked `done` only when its entries here cover all of its completion criteria.
+- A task in `.agents/TASKS.md` may be marked `done` only when its entries here cover all of its completion criteria.
 
 ## Entry format
 

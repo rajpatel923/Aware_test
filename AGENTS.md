@@ -23,7 +23,7 @@ If the spec and implementation disagree, the spec wins. If two spec files disagr
 
 ## Generation boundary
 
-Generated paths: `clients/ios/` and `clients/android/`. Everything else — `spec/`, `server/`, `harness/`, `skills/`, `generator/`, `.agent/`, instruction files, `DESIGN.md`, `README.md` — is hand-maintained and MUST NOT be deleted or overwritten by generation.
+Generated paths: `clients/ios/` and `clients/android/`. Everything else — `spec/`, `server/`, `harness/`, `.agents/skills/`, `generator/`, `.agents/`, instruction files, `DESIGN.md`, `README.md` — is hand-maintained and MUST NOT be deleted or overwritten by generation.
 
 When generating or regenerating client code:
 
@@ -40,8 +40,8 @@ Work is split into four roles. A role is a set of responsibilities and permissio
 - Reads `spec/` and identifies the rules affected by the requested change, by ID.
 - Classifies each rule as shared (both clients) or platform-specific.
 - Finds gaps, contradictions, and ambiguities in the spec and reports them before any implementation starts.
-- Writes the plan as a task entry in `.agent/TASKS.md`: affected rules, affected platforms, open questions, and the acceptance scenarios from `spec/test.md` that must pass.
-- **Writes:** `.agent/TASKS.md` only. Never writes code, never edits `spec/`.
+- Writes the plan as a task entry in `.agents/TASKS.md`: affected rules, affected platforms, open questions, and the acceptance scenarios from `spec/test.md` that must pass.
+- **Writes:** `.agents/TASKS.md` only. Never writes code, never edits `spec/`.
 
 ### iOS Implementer
 

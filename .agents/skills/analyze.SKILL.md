@@ -1,10 +1,15 @@
+---
+name: analyze
+description: Analyze the Spec_drive specification for affected rules, gaps, and acceptance scenarios, and write a task plan before client generation or after a spec change.
+---
+
 # Skill: Specification Analyzer
 
 Invoked as `/analyze` in Claude Code. Runs the Specification Analyzer role defined in `AGENTS.md`.
 
 ## What this skill does
 
-Reads the spec, identifies all rules affected by the current task or change, flags gaps, and writes a plan to `.agent/TASKS.md`. It writes no code. Its output is the plan that unblocks the two Implementer skills.
+Reads the spec, identifies all rules affected by the current task or change, flags gaps, and writes a plan to `.agents/TASKS.md`. It writes no code. Its output is the plan that unblocks the two Implementer skills.
 
 ## When to run this
 
@@ -54,7 +59,7 @@ List every gap, contradiction, or missing test. Mark each as:
 
 ### Step 4 — write the plan
 
-Update the relevant task entry in `.agent/TASKS.md`:
+Update the relevant task entry in `.agents/TASKS.md`:
 - Affected rule IDs
 - Which platforms are affected
 - Open questions (from step 3) that are `[BLOCKER]`

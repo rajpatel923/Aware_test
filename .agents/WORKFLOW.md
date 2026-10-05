@@ -1,7 +1,7 @@
 # Workflow
 
 How work moves through this repository, step by step. `AGENTS.md` defines the roles and their permissions; 
-`.agent/TASKS.md` holds the task list and evidence; 
+`.agents/TASKS.md` holds the task list and evidence; 
 `spec/` defines behavior.
 
 Every workflow below ends with a handoff (`AGENTS.md`) and a commit. Never batch several workflows into one commit.
@@ -16,13 +16,13 @@ Use for any new or changed requirement, including fixes to spec bugs found durin
 4. Update `spec/test.md`: every new or changed rule needs a scenario, fixture, or client-only check that would fail if the rule were broken.
 5. **Analyzer:** reread all touched files for contradictions. Any rule marked [DECISION NEEDED] blocks generation of the behavior it covers.
 6. Commit the spec change alone: `spec: <what changed> (<rule IDs>)`.
-7. Add or reopen tasks in `.agent/TASKS.md` for regeneration and verification (W2, W3).
+7. Add or reopen tasks in `.agents/TASKS.md` for regeneration and verification (W2, W3).
 
 ## W2. Generate or regenerate a client
 
 Use to produce client code from the spec, for a first generation, after a spec change, or to prove regeneration.
 
-1. Confirm the inputs exist: `spec/`, the platform file (`spec/platform/ios.md` or `spec/platform/android.md`), and the generator (`skills/`). If any is missing, stop and record the task as `blocked`.
+1. Confirm the inputs exist: `spec/`, the platform file (`spec/platform/ios.md` or `spec/platform/android.md`), and the generator (`.agents/skills/`). If any is missing, stop and record the task as `blocked`.
 2. Confirm no open [DECISION NEEDED] covers behavior being generated.
 3. **Analyzer:** write the plan into the task entry: affected rules, platforms, and the scenarios that must pass.
 4. Run the generator for one platform using its documented command.

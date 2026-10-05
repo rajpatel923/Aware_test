@@ -1,3 +1,8 @@
+---
+name: generate-ios
+description: Generate or regenerate the Spec_drive Swift iOS client from the specification after analysis has produced a task plan with no blocking gaps.
+---
+
 # Skill: iOS Implementer
 
 Invoked as `/generate-ios` in Claude Code. Runs the iOS Implementer role defined in `AGENTS.md`.
@@ -11,7 +16,7 @@ Generates the Swift iOS client in `clients/ios/` from the spec. It reads only `s
 Before running this skill:
 1. `/analyze` has been run and there are no `[BLOCKER]` gaps.
 2. `spec/platform/ios.md` exists.
-3. The toolchain is available (macOS with Xcode; see `.agent/TASKS.md` E01).
+3. The toolchain is available (macOS with Xcode; see `.agents/TASKS.md` E01).
 
 ## Instructions
 
@@ -20,7 +25,7 @@ You are acting as the iOS Implementer. Follow `AGENTS.md` — iOS Implementer ro
 ### Input sources (read these; read nothing else)
 
 - All files in `spec/` (domain, protocol, api, offline-behavior, ui, test, platform/ios)
-- The current task plan in `.agent/TASKS.md`
+- The current task plan in `.agents/TASKS.md`
 
 **Do not read `clients/android/`, any previously generated `clients/ios/` output, or git history of generated paths.**
 

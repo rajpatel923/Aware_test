@@ -7,7 +7,7 @@ This file defines how the shared spec is realized on iOS: language, libraries, s
 - Language: Swift with Swift Concurrency (`async`/`await`, actors).
 - App minimum: iOS 17 (for the Observation framework).
 - Headless runner: macOS command-line executable. Linux is not supported.
-- Requires macOS with Xcode. Exact Xcode and Swift versions are recorded in `.agent/TASKS.md` (E01).
+- Requires macOS with Xcode. Exact Xcode and Swift versions are recorded in `.agents/TASKS.md` (E01).
 - Project generation: XcodeGen, from a `project.yml` in the generated output. A hand-maintained `.xcodeproj` cannot be regenerated reliably by an agent; `project.yml` is plain text and can.
 
 I1.1 Libraries are limited to Apple frameworks plus **GRDB** (SQLite). No other third-party dependency without a spec change.
@@ -91,7 +91,7 @@ I8.3 The `network` and `fault` commands are implemented by a transport wrapper i
 
 ## 9. Commands
 
-All commands are **unverified** until run and recorded in `.agent/TASKS.md`. Working directory: the iOS generated path.
+All commands are **unverified** until run and recorded in `.agents/TASKS.md`. Working directory: the iOS generated path.
 
 | Purpose | Command |
 |---|---|

@@ -1,6 +1,6 @@
 # SPEC01 — Specification analysis
 
-Written by the Specification Analyzer (`AGENTS.md`) before generation. This report is not a generator input and defines no behavior: only `spec/` does. Task status lives in `.agent/TASKS.md`; check results in `.agent/EVIDENCE.md`.
+Written by the Specification Analyzer (`AGENTS.md`) before generation. This report is not a generator input and defines no behavior: only `spec/` does. Task status lives in `.agents/TASKS.md`; check results in `.agents/evidence/LEDGER.md`.
 
 ## Run
 
@@ -14,7 +14,7 @@ Written by the Specification Analyzer (`AGENTS.md`) before generation. This repo
 
 - List only rules affected by the requested scope, by ID. Do not list every rule in the spec.
 - A gap the analyzer fills with an assumption is a **question**, not a resolution. Record the proposed default and mark it unapproved.
-- A question that changes shared behavior blocks generation of that behavior until it is resolved through the spec-change workflow (`.agent/WORKFLOW.md` W1).
+- A question that changes shared behavior blocks generation of that behavior until it is resolved through the spec-change workflow (`.agents/WORKFLOW.md` W1).
 - A question that is only a free implementation choice may proceed; say so explicitly.
 - Never report "no blockers" while any question is unresolved.
 
