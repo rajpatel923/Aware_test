@@ -1,180 +1,130 @@
-# Local Messaging App
+# Spec-Driven Messaging Generator
 
-A fully local messaging system: one Python/FastAPI server and two independent clients: Swift (macOS headless + iOS app skeleton) and Kotlin (JVM headless + Android Compose app). Both clients speak the same HTTP/JSON protocol and are tested against the same server.
+A code generator that turns a written specification into two independent messaging clients: Swift (iOS) and Kotlin (Android), that behave identically against one shared server. The generator is the deliverable; the messaging app is the evaluation example.
+
+**Core promise:** delete `clients/ios/` and `clients/android/`, follow the steps below, and get back working clients whose behavior matches the spec.
+
+Generated code is disposable. A fix to generated behavior is always a spec change followed by regeneration, never a hand edit inside `clients/`.
 
 ---
 
-## Prerequisites
+## The spec
 
-| Tool | Verified version |
+Every behavioral rule is in `spec/`. Each file owns one concern:
+
+| File | What it defines |
 |---|---|
-| Python | 3.12.9 (miniforge3) |
-| Swift | 6.4 (swiftlang-6.4.0.34.1, CommandLineTools) |
-| JDK | 22 (2024-03-19) |
-| Android SDK | `~/Library/Android/sdk` (API 35, build-tools 36.0.0) |
-| Kotlin | 2.0.21 (via Gradle) |
-| Gradle | 8.6 (wrapper at `android/gradlew`) |
-| Xcode | 27 (iOS 18 SDK) — N01 verified on iPhone 17 simulator |
+| `product.md` | User-facing requirements and scope |
+| `domain.md` | Entities, username rules, text rules, statuses (`D…` rules) |
+| `protocol.md` | Event envelope, idempotency, sequencing, cursors (`P…` rules) |
+| `api.md` | HTTP endpoints, wire format, error codes (`A…` rules) |
+| `offline-behavior.md` | Outbox, sync cycle, retries, lifecycle (`O…` rules) |
+| `ui.md` | Screens and display (`U…` rules) |
+| `test.md` | Headless runner contract, Gherkin scenarios, fixtures (`T…` rules) |
+| `platform/ios.md` | Swift-specific choices, pitfalls, build commands (`I…` rules) |
+| `platform/android.md` | Kotlin-specific choices, pitfalls, build commands (`K…` rules) |
+
+When the spec and implementation disagree, the spec wins. When two spec files disagree, stop and report, never choose one silently.
 
 ---
 
-## Server
+## The agentic coding generator
 
-```bash
-cd backend
-python -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
-```
+The generator works through four roles defined in `AGENTS.md`. Each role is a Claude Code slash command backed by a prompt file in `.agents/skills/`:
 
-The server runs at `http://127.0.0.1:8000`. It stores mailboxes in memory; a restart clears all messages and issues a new epoch. Clients detect this and reset their cursors.
+| Role | Command | Skill file | What it does |
+|---|---|---|---|
+| Specification Analyzer | `/analyze` | `.agents/skills/analyze.SKILL.md` | Reads spec, identifies affected rules, flags gaps, writes plan to `.agents/TASKS.md`. Writes no code. |
+| iOS Implementer | `/generate-ios` | `.agents/skills/generate-ios.SKILL.md` | Generates Swift client in `clients/ios/` from spec only. Never reads `clients/android/`. |
+| Android Implementer | `/generate-android` | `.agents/skills/generate-android.SKILL.md` | Generates Kotlin client in `clients/android/` from spec only. Never reads `clients/ios/`. |
+| Verifier | `/verify` | `.agents/skills/verify.SKILL.md` | Builds both clients, runs all scenarios in both role assignments, records PASS/FAIL/NOT RUN. Cannot edit code or spec. |
 
----
+Roles run in order: Analyzer → Implementers (either order or parallel) → Verifier.
 
-## Swift headless client
+**Tool:** Claude Code CLI (`claude`). The evaluator runs the slash commands in a Claude Code session open at the repository root.
 
-Build (from repo root):
-
-```bash
-cd ios && swift build
-```
-
-Binary: `ios/.build/debug/messaging-cli`
-
-Run:
-
-```bash
-ios/.build/debug/messaging-cli --url http://127.0.0.1:8000 --data-dir /tmp/alice-data
-```
-
-The client reads JSON Lines from stdin and writes JSON Lines to stdout. Each line is `{"id":"<n>","cmd":"<cmd>","args":{...}}`. Supported commands: `identify`, `send`, `offline`, `fault`, `sync_once`, `snapshot`, `reset_session`, `shutdown`.
+When you type `/generate-ios`, Claude Code loads `.agents/skills/generate-ios.SKILL.md` as the agent's instructions. The agent reads only `spec/`, writes only `clients/ios/`, and cites the rule ID on every piece of behavior logic. `.agents/skills/` files are the authoritative prompt templates; `.claude/commands/` files are one-liners that load the skill and invoke the role. Improving a skill never requires touching the command file.
 
 ---
 
-## Kotlin headless client
+## Regenerating the clients
 
-Build (from `android/`):
+**Prerequisites:**
+- macOS with Xcode (for iOS)
+- JDK 17, Android SDK, Gradle (for Android)
+- Python 3.11+ with pip (for the server and harness)
+- Claude Code CLI
 
+**Step 1: delete generated code:**
 ```bash
-cd android && ./gradlew :messaging-cli:jar --no-daemon
+rm -rf clients/ios clients/android
 ```
 
-JAR: `android/messaging-cli/build/libs/messaging-cli.jar`
+**Step 2: open Claude Code at the repo root and run the roles in order:**
 
-Run:
+```
+/analyze
+```
+Review the output. If the analyzer reports `[BLOCKER]` gaps, resolve them in the spec before continuing.
 
-```bash
-java -jar android/messaging-cli/build/libs/messaging-cli.jar \
-  --url http://127.0.0.1:8000 --data-dir /tmp/bob-data
+```
+/generate-ios
+/generate-android
+```
+These can be run in parallel in two Claude Code sessions, or sequentially. Each session should have the repo root as its working directory.
+
+```
+/verify
 ```
 
-Same JSON Lines protocol as the Swift client.
+Each command records its handoff in `.agents/TASKS.md`. The full workflow procedure is in `.agents/WORKFLOW.md`.
 
 ---
 
-## Android Compose app
+## The server
 
-Build (from `android/`):
-
-```bash
-cd android && ANDROID_HOME=~/Library/Android/sdk ./gradlew :android-app:assembleDebug --no-daemon
-```
-
-APK: `android/android-app/build/outputs/apk/debug/android-app-debug.apk`
-
-Install and launch on a running emulator or device:
+The server is hand-written and does not participate in regeneration. It implements `spec/api.md` and `spec/protocol.md`.
 
 ```bash
-adb install android-app/build/outputs/apk/debug/android-app-debug.apk
-adb shell am start -n com.example.messaging.app/.MainActivity
+cd server
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-The app connects to `http://10.0.2.2:8000` (Android emulator loopback to host). Start the server on the host before launching the app. On first launch, enter your name. The sync loop runs every 3 seconds.
+Runs at `http://127.0.0.1:8000`.
+
+- iOS Simulator reaches it at `127.0.0.1:8000` (default).
+- Android Emulator reaches it at `10.0.2.2:8000`.
+- Physical devices need the Mac's LAN address.
+
+**Server tests:**
+```bash
+cd server
+pytest
+```
 
 ---
 
-## Tests
+## Building the clients
 
-### Server unit tests (B01)
-
+**iOS:**
 ```bash
-cd backend && .venv/bin/pytest tests/ -v
-# 27 passed
+cd clients/ios
+swift build                          # all targets
+swift test                           # unit tests
+swift build -c release --product messaging-runner   # headless runner
+xcodegen generate                    # generate Xcode project
 ```
 
-### Cross-client harness self-tests (V01)
-
+**Android:**
 ```bash
-cd tests && python -m pytest test_harness.py -v
-# 9 passed
+cd clients/android
+./gradlew :core:test :http:test :store:test    # unit tests
+./gradlew :runner:installDist                  # headless runner
+./gradlew :app:assembleDebug                   # Android app
+adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
-
-### Swift headless acceptance (A01)
-
-```bash
-cd ios && swift build          # build first
-cd tests && python -m pytest test_swift_client.py -v
-# 7 passed
-```
-
-### Kotlin headless acceptance (A02)
-
-```bash
-cd android && ./gradlew :messaging-cli:jar --no-daemon   # build first
-cd tests && python -m pytest test_kotlin_client.py -v
-# 7 passed
-```
-
-### Cross-language interoperability (X01)
-
-```bash
-python -m pytest tests/test_cross_language.py -v
-# 2 passed  (alice=Swift/bob=Kotlin and alice=Kotlin/bob=Swift)
-```
-
-### Native app (N02)
-
-Verified manually on Medium_Phone_API_35 emulator (API 35, arm64-v8a). See task evidence E-N02 in `.agent/task.md`.
-
-### Native iOS app (N01)
-
-```bash
-cd ios
-xcodebuild -project MessagingApp.xcodeproj \
-  -scheme MessagingApp \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  build
-xcrun simctl install booted MessagingApp.xcodeproj/../DerivedData/*/Build/Products/Debug-iphonesimulator/MessagingApp.app
-xcrun simctl launch booted com.example.messaging.ios
-```
-
-Verified on iPhone 17 simulator (Xcode 27, iOS 18): identify screen → conversation screen with persisted messages, all accepted, pending: 0.
 
 ---
 
-## Architecture
-
-```
-spec/             HTTP contract + behavior rules + test scenarios
-backend/          FastAPI server (Python 3.12, in-memory mailboxes)
-ios/              Swift package: MessagingCore | MessagingHTTP | MessagingSQLite | MessagingCLI
-android/          Gradle project: :messaging-core | :messaging-http | :messaging-storage | :messaging-cli | :android-app
-tests/            Cross-client harness (Python) + acceptance tests
-```
-
-Each client's core holds all messaging behavior. Network and storage are injected; the UI (Compose) and headless runner are thin wrappers over the same core and real adapters.
-
----
-
-## Limitations
-
-- Server keeps mailboxes in memory; all messages are lost on restart. Clients detect the epoch change and reset cursors automatically.
-- No authentication. The server trusts the `sender` field in every POST.
-- Cleartext HTTP only (`usesCleartextTraffic="true"` + network security config for 10.0.2.2).
-- SwiftUI iOS app (N01) requires Xcode and an iOS Simulator; verified with Xcode 27 / iPhone 17 simulator.
-- No background sync on Android; foreground-only (ViewModel scope).
-
----
-
-## Files authored by agent
-
-All files in `backend/`, `ios/`, `android/`, `tests/`, `spec/scenarios/` (JSON fixtures), `.agent/`, and this README were created or substantially modified by the coding agent in this session.
+Results are recorded in `.agents/TASKS.md` under task X01. A headless pass does not prove the native app works; both are required (`spec/test.md` T1.3).
