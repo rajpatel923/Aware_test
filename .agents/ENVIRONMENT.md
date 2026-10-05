@@ -4,19 +4,19 @@ Probed 2026-10-05. Working directory: repository root.
 
 ## Inventory
 
-| Item | Status | Version / Detail                                                                |
-|---|---|---------------------------------------------------------------------------------|
-| macOS | available | 27.2 (Build 26B5091g)                                                           |
-| Xcode | available | 27.0 (Build 27A266a)                                                            |
-| Swift | available | 6.4 (swiftlang-6.4.0.34.1, clang-2100.3.34.1)                                   |
-| XcodeGen | available | 2.46.0                                                                          |
-| Python 3 | available | 3.12.9                                                                          |
-| Claude Code | available | 2.1.190                                                                         |
-| OpenJDK | available | 22 (build 22+36-2370) - see note                                                |
-| Gradle (system) | missing | Not installed system-wide; not required (see K1.3 and `GENERATION_BOUNDARY.md`) |
-| Android SDK | available | Platforms: android-34, android-35, android-37.0                                 |
-| `adb` | missing | Not on PATH                                                                     |
-| Android emulator | missing | Not on PATH; no AVDs listed                                                     |
+| Item | Status | Version / Detail                                                               |
+|---|---|--------------------------------------------------------------------------------|
+| macOS | available | 27.2 (Build 26B5091g)                                                          |
+| Xcode | available | 27.0 (Build 27A266a)                                                           |
+| Swift | available | 6.4 (swiftlang-6.4.0.34.1, clang-2100.3.34.1)                                  |
+| XcodeGen | available | 2.46.0                                                                         |
+| Python 3 | available | 3.12.9                                                                         |
+| Claude Code | available | 2.1.190                                                                        |
+| OpenJDK | available | 22 (build 22+36-2370) - see note                                               |
+| Gradle (system) | missing | Not installed system-wide; not required |
+| Android SDK | available | Platforms: android-34, android-35, android-37.0                                |
+| `adb` | missing | Not on PATH                                                                    |
+| Android emulator | missing | Not on PATH; no AVDs listed                                                    |
 
 **JDK note:** `spec/platform/android.md` K1.1 specifies JDK 17; JDK 22 is installed. JDK 22 is backward-compatible for Kotlin/Gradle use; Gradle 8.x supports JDK 22. Generation may proceed with JDK 22. Update K1.1 in a separate spec task if a strict version bound is needed.
 
@@ -50,7 +50,7 @@ xcodebuild -version
 swift --version
 xcodegen --version
 java -version
-gradle --version          # → not found (not required; see GENERATION_BOUNDARY.md)
+gradle --version        
 python3 --version
 claude --version
 xcrun simctl list devices available
