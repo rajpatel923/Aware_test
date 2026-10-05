@@ -53,14 +53,14 @@ T2.6 A runner restarted with the same data directory MUST resume from its stored
 
 Scenarios are standard Gherkin (`Feature`, `Scenario Outline`, `Examples`), so an off-the-shelf runner such as pytest-bdd can parse them. Every scenario is an outline over the two role assignments in T1.2. Scenarios use only these steps. Each maps to runner commands, so the harness executes scenarios without hand-written step code. New features add new steps here.
 
-- `a fresh server` — start a new server process (new epoch).
-- `<User>'s client is <language> with empty storage` — start a runner with a new data directory.
+- `a fresh server` start a new server process (new epoch).
+- `<User>'s client is <language> with empty storage` start a runner with a new data directory.
 - `<User> identifies as "<name>"` → `identify`.
 - `<User> sends "<text>" to "<username>" as <ref>` → `send` with type `message.text`; bind `event_id` to `<ref>`.
 - `<User> goes offline` / `goes online` → `network`.
 - `<User> syncs` → `sync_once`, repeated while `state` is `syncing`, at most 10 times. The step fails if the client is still `syncing` after 10 cycles, or ends in an error state the scenario did not expect.
 - `<User> restarts` → `shutdown`, then start with the same data directory.
-- `the server restarts` — stop the current server process and start a new one; new epoch, `seq` from 1, empty mailboxes, no event keys (`protocol.md` P10.1).
+- `the server restarts` stop the current server process and start a new one; new epoch, `seq` from 1, empty mailboxes, no event keys (`protocol.md` P10.1).
 - `<User> resets session` → `reset_session`; the client adopts the new epoch and sets cursor to 0 in one transaction (`protocol.md` P10.3).
 - `the next <submit|pull> response to <User> is lost` → `fault`.
 - `Then` steps → `snapshot`, then compare as below.
@@ -289,6 +289,31 @@ Scenario Outline: Server restart and recovery
 
 Proves `protocol.md` P10.1–P10.3 and `offline-behavior.md` O9.1–O9.2: the client enters `server_reset`, keeps all local data, resubmits the outbox with original envelopes after recovery, and never reuses the old cursor.
 
+### S6: Server reset survives client restart
+
+```gherkin
+Feature: Messaging conformance
+
+Scenario Outline: Server reset survives client restart
+  Given a fresh server
+  And Alice's client is <alice_lang> with empty storage
+  When Alice identifies as "alice"
+  And Alice syncs
+  And the server restarts
+  And Alice syncs
+  Then Alice's state is server_reset
+  When Alice restarts
+  And Alice syncs
+  Then Alice's state is server_reset
+
+  Examples:
+    | alice_lang | bob_lang |
+    | swift      | kotlin   |
+    | kotlin     | swift    |
+```
+
+Proves `offline-behavior.md` O10.6–O10.8: sync state is never persisted; `server_reset` is re-derived on restart via the session check, and still requires explicit `reset_session` to resume.
+
 ## 6. Validation fixtures
 
 Every case MUST be classified identically by the server and both clients. Long strings are written as `<char> × <count>`.
@@ -335,3 +360,4 @@ These cannot be produced through the cross-client harness and are covered by cli
 - A mismatched acknowledgement enters `protocol_error` (P5.5).
 - Enqueue succeeds while a submission is in flight (`offline-behavior.md` O2.5).
 - Concurrent sync triggers run one cycle (O6.1); results from a cancelled cycle are not committed (O6.3).
+- A client stopped in `protocol_error` or `incompatible`, then closed and reopened, runs a fresh session check on its first cycle (`offline-behavior.md` O10.7, O10.8).

@@ -8,33 +8,53 @@ The deliverable is a **spec-driven code generator**: a written specification plu
 
 The core promise: delete the generated client code, run the generator, and get back working clients whose behavior matches the spec. Every decision below serves that promise or one of the assignment's other evaluation criteria.
 
-| Criterion | Main design response |
-|---|---|
-| Regeneration works | Disposable generated code, declared boundary, generation from `spec/` only (sections 3, 7) |
-| Spec is authoritative | Rule IDs, one owner per topic, rule citations in code (section 4) |
-| Two clients interoperate | Independent implementations verified against each other over real HTTP (sections 7, 8) |
-| Evolution | Typed events and an extension recipe (section 5, 9) |
-| Quality | Deterministic Gherkin scenarios, role swap, fault injection, honest evidence (section 8) |
-| Generated vs hand-written | Boundary file plus attribution rules (sections 3, 7) |
+#### Regeneration Works
+- Disposable generated code
+- Clearly declared generation boundary
+- Generate code from `spec/` only
+- See Sections 3 and 7
+
+#### Spec Is Authoritative
+- Use Rule IDs
+- Assign one owner per topic
+- Include rule citations in code
+- See Section 4
+
+#### Two Clients Interoperate
+- Build independent client implementations
+- Verify both clients against each other over real HTTP
+- See Sections 7 and 8
+
+#### Evolution
+- Use typed events
+- Define a clear extension recipe for future changes
+- See Sections 5 and 9
+
+## Quality
+- Use deterministic Gherkin scenarios
+- Test role swapping
+- Include fault injection
+- Provide honest, reproducible evidence
+- See Section 8
 
 ## 2. Principles
 
-1. **The spec is the only source of behavior.** Code, tests, and agents derive from it. When the spec is silent or contradictory, agents stop and report rather than guess.
-2. **Generated code is disposable.** Nothing of value may exist only in generated files. A fix to generated behavior is a fix to the spec or the generator.
-3. **Implementations stay independent.** The Swift and Kotlin clients are each generated from the spec without seeing the other. If they then interoperate, the spec was precise enough. If one were translated from the other, interoperability would prove nothing.
-4. **Every behavior is traceable.** Rules have stable IDs (`D…`, `P…`, `O…`, `T…`, `A…`), and generated code cites them. Any line of client logic can be traced to the rule that requires it.
-5. **Verification is deterministic.** Tests drive clients through explicit commands. No step sleeps, and no assertion depends on timing or generated IDs.
-6. **Local first.** Every user action succeeds against local storage; the network only syncs. Offline is the normal case, not an error path.
-7. **Extend by adding, not rewriting.** New features arrive as new event types with their own rules, leaving the envelope and sync machinery untouched.
-8. **Evidence over claims.** A check that did not run is reported as NOT RUN. A missing toolchain is never a pass.
+1. The spec is the only source of behavior. Code, tests, and agents derive from it. When the spec is silent or contradictory, agents stop and report rather than guess.
+2. Generated code is disposable. Nothing of value may exist only in generated files. A fix to generated behavior is a fix to the spec or the generator.
+3. Implementations stay independent. The Swift and Kotlin clients are each generated from the spec without seeing the other. If they then interoperate, the spec was precise enough. If one were translated from the other, interoperability would prove nothing.
+4. Every behavior is traceable. Rules have stable IDs (`D…`, `P…`, `O…`, `T…`, `A…`), and generated code cites them. Any line of client logic can be traced to the rule that requires it.
+5. Verification is deterministic. Tests drive clients through explicit commands. No step sleeps, and no assertion depends on timing or generated IDs.
+6. Local first.Every user action succeeds against local storage; the network only syncs. Offline is the normal case, not an error path.
+7. Extend by adding, not rewriting. New features arrive as new event types with their own rules, leaving the envelope and sync machinery untouched.
+8. Evidence over claims. A check that did not run is reported as NOT RUN. A missing toolchain is never a pass.
 
-## 3. Repository shape
+## 3. Repository
 
-- `spec/`: the source of truth. Hand-written.
-- `generator/` and `.agents/skills/`: the harness that turns the spec into clients. Hand-written.
-- `.agents/`: task tracking, workflow, skills, and the generation boundary. Hand-written.
-- `AGENTS.md`, `CLAUDE.md`: agent instructions. Hand-written.
-- Server: a small hand-written process. The assignment allows it outside generator discipline, and keeping it hand-written gives the generated clients a fixed reference to conform to.
+- `spec/`: the source of truth.
+- `generator/` and `.agents/skills/`: the harness that turns the spec into clients. 
+- `.agents/`: task tracking, workflow, skills, and the generation boundary. 
+- `AGENTS.md`, `CLAUDE.md`: agent instructions.
+- Server: a small process / backend code.
 - Cross-client test harness: hand-written, because it is the oracle. Generated code must never be able to rewrite the thing that judges it.
 - iOS and Android clients: generated.
 

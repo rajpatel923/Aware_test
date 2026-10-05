@@ -38,7 +38,7 @@ Shown once identity is saved. It has four areas: the peer selector, the message 
 
 ## 2. Send action
 
-U2.1 On Send: capture the draft text and recipient; await `enqueue`; clear the composer **only after the local transaction commits** (`offline-behavior.md` O2.3). If the user edited the draft while the enqueue was in progress, do not overwrite the newer text — compare the captured draft or use a submission token.
+U2.1 On Send: capture the draft text and recipient; await `enqueue`; clear the composer **only after the local transaction commits** (`offline-behavior.md` O2.3). If the user edited the draft while the enqueue was in progress, do not overwrite the newer text compare the captured draft or use a submission token.
 
 U2.2 If enqueue fails (`storage_error`), keep the draft intact and show the error.
 
@@ -58,17 +58,17 @@ U3.4 Events from a previous server epoch are shown with a visual separator or ep
 
 Show the sync banner whenever the state is not `idle`:
 
-| State | Suggested text | Dismissible |
-|---|---|---|
-| `syncing` | "Syncing…" | No |
-| `offline` | "Offline — will retry" | No |
-| `paused` | *(hidden; normal inactive state)* | — |
+| State | Suggested text                        | Dismissible                    |
+|---|---------------------------------------|--------------------------------|
+| `syncing` | "Syncing…"                            | No                             |
+| `offline` | "Offline will retry"                  | No                             |
+| `paused` | *(hidden; normal inactive state)*     | -                              |
 | `server_reset` | "Server restarted. Tap to reconnect." | Requires explicit reset action |
-| `incompatible` | "Server version not supported." | No |
-| `protocol_error` | "Sync error — contact support." | No |
-| `storage_error` | "Storage error — restart the app." | No |
+| `incompatible` | "Server version not supported."       | No                             |
+| `protocol_error` | "Sync error - contact support."       | No                             |
+| `storage_error` | "Storage error - restart the app."    | No                             |
 
-U4.1 `server_reset`, `incompatible`, `protocol_error`, and `storage_error` MUST remain visible until the user takes the required action or the app restarts. They MUST NOT disappear after a timeout.
+U4.1 The sync banner always reflects the current derived state (`offline-behavior.md` O10.7). After relaunch, banners for `incompatible` and `protocol_error` are not shown until the first cycle re-detects the problem; `server_reset` reappears after the first session check; `storage_error` is shown immediately if storage fails to open.
 
 U4.2 The pending count (number of events in the outbox) MAY be shown alongside the sync state, e.g. "Syncing… (2 pending)".
 
@@ -76,13 +76,13 @@ U4.2 The pending count (number of events in the outbox) MAY be shown alongside t
 
 Each event row shows a status badge:
 
-| Status | Badge | Meaning |
-|---|---|---|
-| `queued` | Clock or hourglass | Saved locally, not yet submitted |
-| `sending` | Spinner (transient, never persisted — `domain.md` D6.4) | Submission currently in flight |
-| `accepted` | Single check | Server confirmed receipt |
-| `failed` | Exclamation or ✗ | Permanently rejected; `failure_code` available |
-| `received` | No badge, or distinct row style | Incoming event from another user |
+| Status | Badge                                                   | Meaning |
+|---|---------------------------------------------------------|---|
+| `queued` | Clock or hourglass                                      | Saved locally, not yet submitted |
+| `sending` | Spinner (transient, never persisted - `domain.md` D6.4) | Submission currently in flight |
+| `accepted` | Single check                                            | Server confirmed receipt |
+| `failed` | Exclamation or ✗                                        | Permanently rejected; `failure_code` available |
+| `received` | No badge, or distinct row style                         | Incoming event from another user |
 
 U5.1 `accepted` means the server stored the event, not that the recipient has read it. Do not show a double check or "delivered" label without a receipt contract (`domain.md` D6.3, out of scope for v1).
 

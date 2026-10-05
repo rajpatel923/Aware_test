@@ -1,6 +1,6 @@
 # Spec-Driven Messaging Generator
 
-A code generator that turns a written specification into two independent messaging clients — Swift (iOS) and Kotlin (Android) — that behave identically against one shared server. The generator is the deliverable; the messaging app is the evaluation example.
+A code generator that turns a written specification into two independent messaging clients: Swift (iOS) and Kotlin (Android), that behave identically against one shared server. The generator is the deliverable; the messaging app is the evaluation example.
 
 **Core promise:** delete `clients/ios/` and `clients/android/`, follow the steps below, and get back working clients whose behavior matches the spec.
 
@@ -38,7 +38,7 @@ Every behavioral rule is in `spec/`. Each file owns one concern:
 | `platform/ios.md` | Swift-specific choices, pitfalls, build commands (`I…` rules) |
 | `platform/android.md` | Kotlin-specific choices, pitfalls, build commands (`K…` rules) |
 
-When the spec and implementation disagree, the spec wins. When two spec files disagree, stop and report — never choose one silently.
+When the spec and implementation disagree, the spec wins. When two spec files disagree, stop and report, never choose one silently.
 
 ---
 
@@ -69,12 +69,12 @@ When you type `/generate-ios`, Claude Code loads `.agents/skills/generate-ios.SK
 - Python 3.11+ with pip (for the server and harness)
 - Claude Code CLI
 
-**Step 1 — delete generated code:**
+**Step 1: delete generated code:**
 ```bash
 rm -rf clients/ios clients/android
 ```
 
-**Step 2 — open Claude Code at the repo root and run the roles in order:**
+**Step 2: open Claude Code at the repo root and run the roles in order:**
 
 ```
 /analyze

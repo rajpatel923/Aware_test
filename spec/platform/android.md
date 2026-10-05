@@ -14,7 +14,7 @@ K1.1 Libraries are limited to: Kotlin standard library, kotlinx.coroutines, kotl
 
 K1.2 Use the latest stable versions that work together with the recorded JDK and Android Gradle Plugin. Pin every version in `gradle/libs.versions.toml`, and report them in the handoff.
 
-K1.3 The Gradle wrapper (`gradlew`, `gradle/wrapper/`) is part of the generated output. Creating it requires a locally installed Gradle once (`gradle wrapper`); record this as a toolchain prerequisite.
+K1.3 The Gradle wrapper (`gradlew`, `gradlew.bat`, `gradle/wrapper/`) is part of the generated output and is copied from a committed template in the generator. No locally installed `gradle` is required to regenerate the project; the wrapper resolves its Gradle distribution at build time from the version declared in `gradle/wrapper/gradle-wrapper.properties`. The template files are listed in `GENERATION_BOUNDARY.md`.
 
 ## 2. Structure
 

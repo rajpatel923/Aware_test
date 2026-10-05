@@ -20,7 +20,7 @@ Before running this skill:
 
 ## Instructions
 
-You are acting as the Android Implementer. Follow `AGENTS.md` — Android Implementer role — and `spec/platform/android.md` exactly.
+You are acting as the Android Implementer. Follow `AGENTS.md` - Android Implementer role - and `spec/platform/android.md` exactly.
 
 ### Input sources (read these; read nothing else)
 
@@ -33,34 +33,34 @@ You are acting as the Android Implementer. Follow `AGENTS.md` — Android Implem
 
 All generated files go inside `clients/android/`. Do not write anywhere else.
 
-### Step 1 — read and plan
+### Step 1 - read and plan
 
 Read every relevant spec file. For each rule you will implement, note its ID. Read `spec/platform/android.md` fully; it contains Kotlin-specific pitfalls that override naive implementations.
 
 Pay special attention to:
-- `K3.1` — username lowercasing: do NOT use `lowercase()`, convert only `'A'..'Z'` manually
-- `K3.2` — text length: use `text.encodeToByteArray(throwOnInvalidSequence = true).size`; the default silently replaces lone surrogates
-- `K4.1` — concurrency: guard the sync job with a `Mutex` and generation counter; never use `GlobalScope`
-- `K4.3` — always rethrow `CancellationException`; never classify it as a network failure
-- `K6.1` — OkHttp: `retryOnConnectionFailure(false)`, `callTimeout(10, SECONDS)`, no cache
+- `K3.1` - username lowercasing: do NOT use `lowercase()`, convert only `'A'..'Z'` manually
+- `K3.2` - text length: use `text.encodeToByteArray(throwOnInvalidSequence = true).size`; the default silently replaces lone surrogates
+- `K4.1` - concurrency: guard the sync job with a `Mutex` and generation counter; never use `GlobalScope`
+- `K4.3` - always rethrow `CancellationException`; never classify it as a network failure
+- `K6.1` - OkHttp: `retryOnConnectionFailure(false)`, `callTimeout(10, SECONDS)`, no cache
 
-### Step 2 — generate the module structure
+### Step 2 - generate the module structure
 
 Generate `clients/android/` with these Gradle modules (see `spec/platform/android.md` section 2):
 
-| Module | Kind |
-|---|---|
-| `:core` | Kotlin/JVM library — domain, protocol, sync engine, ports |
-| `:http` | Kotlin/JVM library — OkHttp transport, wire DTOs |
-| `:store` | Kotlin/JVM library — SQLDelight schema, queries, transactions |
-| `:runner` | JVM application — headless runner; supplies `JdbcSqliteDriver` |
-| `:app` | Android application — Compose UI, ViewModels; supplies `AndroidSqliteDriver` |
+| Module | Kind                                                                         |
+|---|------------------------------------------------------------------------------|
+| `:core` | Kotlin/JVM library - domain, protocol, sync engine, ports                    |
+| `:http` | Kotlin/JVM library - OkHttp transport, wire DTOs                             |
+| `:store` | Kotlin/JVM library - SQLDelight schema, queries, transactions                |
+| `:runner` | JVM application - headless runner; supplies `JdbcSqliteDriver`               |
+| `:app` | Android application - Compose UI, ViewModels; supplies `AndroidSqliteDriver` |
 
 `:core` MUST NOT depend on Android classes, OkHttp, SQLDelight, or Compose (`K2.1`).
 
 Pin all versions in `gradle/libs.versions.toml` (`K1.2`). Include the Gradle wrapper (`K1.3`).
 
-### Step 3 — implement each layer in order
+### Step 3 - implement each layer in order
 
 #### Domain layer (`:core`)
 Implement all `D…` rules. Each piece of logic MUST have a short comment citing its rule ID, e.g. `// D1.1`.
@@ -69,7 +69,7 @@ Key implementations:
 - Username canonicalization (D1.1): strip ASCII whitespace → convert `A-Z` to `a-z` byte-by-byte → validate `[a-z0-9_]{1,32}`
 - Text validation (D4.1): `encodeToByteArray(throwOnInvalidSequence = true).size`, 1–4096 bytes
 - Text storage (D4.2): no normalization, exact bytes preserved
-- Event IDs (K3.4): `UUID.randomUUID().toString()` — already lowercase
+- Event IDs (K3.4): `UUID.randomUUID().toString()` - already lowercase
 - Status transitions (D6.2): `queued → accepted`, `queued → failed` only
 
 #### Storage adapter (`:store`)
@@ -126,7 +126,7 @@ Implement `U…` rules:
 
 Collect state with `collectAsStateWithLifecycle`. Composables never call storage or HTTP (K4.4).
 
-### Step 4 — build and test
+### Step 4 - build and test
 
 ```bash
 cd clients/android
@@ -136,7 +136,7 @@ cd clients/android
 
 Fix any failure inside `clients/android/` only. If a failure reveals a spec gap, stop and report it; do not invent behavior.
 
-### Step 5 — handoff
+### Step 5 - handoff
 
 End with:
 - Role: Android Implementer

@@ -89,6 +89,8 @@ I8.2 Reads JSON Lines on stdin, writes one result line per request to stdout, fl
 
 I8.3 The `network` and `fault` commands are implemented by a transport wrapper in the runner around the real `MessagingHTTP` transport, never inside `MessagingCore` (T2.3, T2.4).
 
+I8.4 **XcodeGen app target dependencies.** `MessagingCore`, `MessagingHTTP`, and `MessagingStore` are Swift Package products, not standalone XcodeGen targets. In `project.yml`, the `MessagingApp` target must reference them under `packages:`, not `dependencies:`. Using `dependencies:` causes "invalid dependency" validation errors.
+
 ## 9. Commands
 
 All commands are **unverified** until run and recorded in `.agents/TASKS.md`. Working directory: the iOS generated path.

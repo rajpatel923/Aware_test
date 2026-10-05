@@ -23,7 +23,7 @@ If the spec and implementation disagree, the spec wins. If two spec files disagr
 
 ## Generation boundary
 
-Generated paths: `clients/ios/` and `clients/android/`. Everything else — `spec/`, `server/`, `harness/`, `.agents/skills/`, `generator/`, `.agents/`, instruction files, `DESIGN.md`, `README.md` — is hand-maintained and MUST NOT be deleted or overwritten by generation.
+Generated paths: `clients/ios/` and `clients/android/`. Everything else, `spec/`, `server/`, `harness/`, `.agents/skills/`, `generator/`, `.agents/`, instruction files, `DESIGN.md`, `README.md`, is hand-maintained and MUST NOT be deleted or overwritten by generation.
 
 When generating or regenerating client code:
 

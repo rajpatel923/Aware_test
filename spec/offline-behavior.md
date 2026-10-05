@@ -118,9 +118,15 @@ O10.2 **Becoming inactive** (background, screen lock) cancels the running cycle 
 
 O10.3 **Becoming active** requests a sync immediately.
 
-O10.4 **Restart** (app relaunch, crash, process death): on load, the client reads identity, local events, outbox, and sync state from storage and resumes exactly where the last commit left it. No in-memory state is required to recover.
+O10.4 **Restart** (app relaunch, crash, process death): on load, the client reads identity, local events, outbox, epoch, and cursor from storage and resumes exactly where the last commit left them. No in-memory state is required to recover.
 
 O10.5 v1 makes no promise of syncing while the app is suspended: no background tasks and no push notifications.
+
+O10.6 Sync state is never persisted. Only the data in `domain.md` sections 2, 5, 7, and 8 survives a restart.
+
+O10.7 On load, the client derives its state: `storage_error` if storage cannot be opened or migrated; otherwise the first cycle runs a session check (O5.2 step 1), which re-detects `server_reset` (saved epoch differs from the server's) or `incompatible`.
+
+O10.8 A relaunch counts as the explicit action in O7.1 for `incompatible`, `protocol_error`, and `storage_error`. It does not count for `server_reset`: a changed epoch is re-detected after relaunch and still requires the reset in `protocol.md` P10.3.
 
 ## 11. Storage requirements
 

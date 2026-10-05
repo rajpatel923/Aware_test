@@ -20,7 +20,7 @@ Before running this skill:
 
 ## Instructions
 
-You are acting as the iOS Implementer. Follow `AGENTS.md` — iOS Implementer role — and `spec/platform/ios.md` exactly.
+You are acting as the iOS Implementer. Follow `AGENTS.md` - iOS Implementer role - and `spec/platform/ios.md` exactly.
 
 ### Input sources (read these; read nothing else)
 
@@ -33,32 +33,32 @@ You are acting as the iOS Implementer. Follow `AGENTS.md` — iOS Implementer ro
 
 All generated files go inside `clients/ios/`. Do not write anywhere else.
 
-### Step 1 — read and plan
+### Step 1 - read and plan
 
 Read every relevant spec file. For each rule you will implement, note its ID. Read `spec/platform/ios.md` fully; it contains Swift-specific pitfalls that override naive implementations.
 
 Pay special attention to:
-- `I3.1` — username lowercasing: do NOT use `lowercased()`, use ASCII-only byte conversion
-- `I3.2` — text length: use `text.utf8.count`, never `text.count` or `text.utf16.count`
-- `I3.4` — event IDs: `UUID().uuidString` is uppercase; lowercase once at creation
-- `I4.1` — concurrency: actor re-entry at `await` means you need an explicit task gate and generation counter
-- `I6.1` — URLSession: ephemeral config, `urlCache = nil`, `waitsForConnectivity = false`
+- `I3.1` - username lowercasing: do NOT use `lowercased()`, use ASCII-only byte conversion
+- `I3.2` - text length: use `text.utf8.count`, never `text.count` or `text.utf16.count`
+- `I3.4` - event IDs: `UUID().uuidString` is uppercase; lowercase once at creation
+- `I4.1` - concurrency: actor re-entry at `await` means you need an explicit task gate and generation counter
+- `I6.1` - URLSession: ephemeral config, `urlCache = nil`, `waitsForConnectivity = false`
 
-### Step 2 — generate the package structure
+### Step 2 - generate the package structure
 
 Generate `clients/ios/Package.swift` with these targets (see `spec/platform/ios.md` section 2):
 
-| Target | Kind |
-|---|---|
-| `MessagingCore` | library — domain, protocol, sync engine, ports |
-| `MessagingHTTP` | library — URLSession transport, wire DTOs |
-| `MessagingStore` | library — GRDB storage, migrations |
-| `messaging-runner` | executable — headless runner |
-| Test targets | one per library |
+| Target | Kind                                           |
+|---|------------------------------------------------|
+| `MessagingCore` | library - domain, protocol, sync engine, ports |
+| `MessagingHTTP` | library - URLSession transport, wire DTOs      |
+| `MessagingStore` | library - GRDB storage, migrations             |
+| `messaging-runner` | executable - headless runner                   |
+| Test targets | one per library                                |
 
 `MessagingCore` MUST NOT import GRDB, URLSession networking, SwiftUI, or UIKit (`I2.1`).
 
-### Step 3 — implement each layer in order
+### Step 3 - implement each layer in order
 
 #### Domain layer (`MessagingCore`)
 Implement all `D…` rules. Each piece of logic MUST have a short comment citing its rule ID, e.g. `// D1.1`.
@@ -71,9 +71,9 @@ Key implementations:
 
 #### Storage adapter (`MessagingStore`)
 Implement schema and the three critical transactions (O2.3, O4.1, P7.4):
-1. Enqueue: allocate `local_order`, insert event + outbox entry, advance counter — one `write` block (I5.3)
-2. Acceptance: update status/seq/epoch, delete outbox entry — one `write` block
-3. Receive page: upsert events, save cursor — one `write` block; roll back everything on any failure
+1. Enqueue: allocate `local_order`, insert event + outbox entry, advance counter - one `write` block (I5.3)
+2. Acceptance: update status/seq/epoch, delete outbox entry - one `write` block
+3. Receive page: upsert events, save cursor - one `write` block; roll back everything on any failure
 
 Use `DatabaseMigrator` with named, append-only migrations (I5.2). Enable foreign keys (I5.2). Database file in `--data-dir` for the runner.
 
@@ -108,7 +108,7 @@ Implement `U…` rules:
 - `scenePhase` drives activity (I7.2)
 - `NSAllowsLocalNetworking = true` in Info.plist (I7.4)
 
-### Step 4 — build and test
+### Step 4 - build and test
 
 ```bash
 cd clients/ios
@@ -118,7 +118,7 @@ swift test
 
 Fix any build or test failure inside `clients/ios/` only. If a failure reveals a spec gap, stop and report it; do not invent behavior.
 
-### Step 5 — handoff
+### Step 5 - handoff
 
 End with:
 - Role: iOS Implementer
