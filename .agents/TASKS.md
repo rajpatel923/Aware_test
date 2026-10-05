@@ -42,7 +42,7 @@ These files must exist before any task starts. They are inputs, not deliverables
 | N02 | pending | A02 | Compose app on emulator or device |
 | P01 | pending | X01, N01, N02 | README, final review, delivery |
 
-Default order: SPEC01, SPEC02, E01, B01, V01, A01, A02, X01, N01, N02, P01.
+Default order: SPEC01, E01, B01, V01, A01, A02, X01, N01, N02, P01.
 
 ## Task details
 
