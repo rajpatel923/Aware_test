@@ -10,70 +10,60 @@ Path: `.agents/TASKS.md`. This file tracks work, dependencies, acceptance criter
 
 **Evidence record.** For every attempt, record: task ID, date, spec revision if any, tool and toolchain versions, exact command, working directory, exit status and observed result, log path, limitations, and next action if it failed. A check that did not run is NOT RUN, never passed.
 
+## Prerequisites
+
+These files must exist before any task starts. They are inputs, not deliverables — no task tracks them. If one is missing, stop and report it before proceeding.
+
+| File | Purpose |
+|---|---|
+| `spec/domain.md` | Entity rules, username, text, display order |
+| `spec/protocol.md` | Events, submission, cursors, epoch |
+| `spec/api.md` | Endpoints and wire format |
+| `spec/offline-behavior.md` | Outbox, sync cycle, retries, lifecycle |
+| `spec/ui.md` | Screens and display |
+| `spec/test.md` | Runner contract, scenarios, fixtures |
+| `spec/platform/ios.md` | iOS-specific rules and pitfalls (I rules) |
+| `spec/platform/android.md` | Android-specific rules and pitfalls (K rules) |
+| `.agents/AGENTS.md` | Role definitions |
+| `.agents/ENVIRONMENT.md` | Toolchain inventory (produced by E01) |
+
 ## Task register
 
 | ID | Status | Depends on | Goal |
 |---|---|---|---|
-| D01 | pending | none | Root `CLAUDE.md` consistent with `AGENTS.md` |
-| D02 | pending | none | Root `AGENTS.md` |
-| D03 | pending | D02 | `.agents/design.md` |
-| D04 | pending | D03 | `.agents/TASKS.md` (this file) |
-| D05 | pending | D04 | `server/AGENTS.md` |
-| D06 | pending | D04 | `ios/AGENTS.md` |
-| D07 | pending | D04 | `android/AGENTS.md` |
-| C01 | pending | D03 | `spec/behavior.md` |
-| C02 | pending | C01 | `spec/protocol.openapi.yaml` |
-| C03 | pending | C02 | `spec/scenarios/` and headless runner contract |
-| SPEC01 | done | D02, D04 | Full spec analysis for first generation; all rules classified; gaps and acceptance scenarios documented |
-| SPEC02 | pending | SPEC01 | Resolve Q4 restart recovery in the spec and define MT5 coverage |
-| E01 | done | none | Toolchain and environment inventory |
-| B01 | pending | C02, D05, E01 | Python server in `server/` |
-| V01 | pending | C03, E01 | Cross-client test runner in `tests/` |
-| A01 | done | C03, D06, B01, SPEC01 | Swift core, adapters, headless runner |
-| A02 | done | C03, D07, B01, SPEC01 | Kotlin core, adapters, headless runner |
-| X01 | done | A01, A02, V01 | Cross-language interoperability and fault tests |
+| SPEC01 | done | — | Full spec analysis; all rules classified; gaps and acceptance scenarios documented |
+| E01 | done | — | Toolchain and environment inventory |
+| B01 | pending | E01 | Python server in `server/` |
+| V01 | pending | E01 | Cross-client test runner in `tests/` |
+| A01 | pending | SPEC01, E01, B01 | Swift core, adapters, headless runner |
+| A02 | pending | SPEC01, E01, B01 | Kotlin core, adapters, headless runner |
+| X01 | pending | A01, A02 | Cross-language interoperability and fault tests |
 | N01 | pending | A01 | SwiftUI app on simulator or device |
 | N02 | pending | A02 | Compose app on emulator or device |
 | P01 | pending | X01, N01, N02 | README, final review, delivery |
 
-Default order: D01, D02-D04, D05–D07, C01–C03, SPEC01, SPEC02, E01, B01, V01, A01, A02, X01, N01, N02, P01.
+Default order: SPEC01, SPEC02, E01, B01, V01, A01, A02, X01, N01, N02, P01.
 
 ## Task details
-
-**D01 - Fix CLAUDE.md.** It still describes generated client folders and regeneration, which contradicts `AGENTS.md` and the design. Done when it imports `AGENTS.md` and adds only Claude-specific notes, with no conflicting layout or rules.
-
-**D02–D04 - Core documents.** Authored and checked for internal consistency (paths, statuses, scenario wording). This establishes nothing about implementation.
-
-**D05–D07 - Platform instructions.** Each refines `AGENTS.md` for one folder without duplicating the design or changing shared behavior: correct paths, layer boundaries, platform checks (commands marked unverified until run), no secrets or machine-specific settings. Done on document review.
 
 **SPEC01 - Specification analysis: first generation.** Run the `/analyze` skill. Findings must be written to [analysis/SPEC01.md](analysis/SPEC01.md) (fill every section of the template) and an evidence entry added to [evidence/LEDGER.md](evidence/LEDGER.md) under ID `E-SPEC01-analysis`. This task records analysis, not approval of proposed defaults. Done when SPEC01.md is fully populated and LEDGER.md contains the evidence entry.
 
 - **Rules/platforms expected:** shared D, P, A, O, U, and T rules; iOS I rules; Android K rules. Exact IDs and platform classification are determined by the analyzer and recorded in SPEC01.md.
-- **Acceptance scenarios to cover:** [spec/test.md](../spec/test.md) S1–S5 in both role assignments (T1.1–T1.2), plus section 7 client checks.
+- **Acceptance scenarios to cover:** [spec/test.md](../spec/test.md) S1–S6 in both role assignments (T1.1–T1.2), plus section 7 client checks.
 - **Coverage follow-ups to check:** MT1 epoch separator (U3.4); MT2 recorded submission error (O4.3); MT3 self-conversation (D5.2, domain section 9); MT4 Bob's retained history after S5 (O9.2); MT5 restart from stopped error states.
-- **Analysis complete (2026-10-05):** 72 shared rules, 27 iOS rules, 28 Android rules, 11 server rules classified. 7 questions identified: Q3 is [BLOCKER] (O10.4 vs U4.1 contradiction on stopped-state persistence across restarts). Q1, Q2, Q4–Q7 are [QUESTION] or [MISSING TEST], non-blocking. Generation may start for both clients and server (see SPEC01.md Conclusion). MT5 must wait for Q3 resolution (SPEC02). Open assumptions: Q1 default (reset_session clears epoch to null), Q2 default (self-conversation peer = own username).
-- **Environment:** Q7–Q8 are E01 prerequisites; see [ENVIRONMENT.md](ENVIRONMENT.md).
+- **Analysis complete (2026-10-05):** 72 shared rules, 27 iOS rules, 28 Android rules, 11 server rules classified. 8 questions identified; Q3 resolved (O10.6–O10.8 + U4.1). Q1 resolved (O10.7). Q2, Q4–Q8 non-blocking. Generation approved for A01, A02, B01. N02 blocked on missing emulator.
 
-**SPEC02 - Resolve restart recovery (Q4).** Pending separate spec decision for both clients. Affected rules: O7.1, O10.3–O10.4, O11.1, D8.1, U4.1, P4.2, P10.2–P10.3. Decide which stopped states survive restart and which explicit actions resume them; see the [proposal and rule ambiguity](analysis/SPEC01.md#q4--restart-recovery-decision). Done when the owning spec defines each case and spec/test.md defines MT5 expectations. S1–S5 and section 7 remain regression requirements. Generation of this behavior is blocked on that decision. Reopen affected implementation and verification tasks when the spec changes.
-
-**Note on C01–C03:** These tasks predate the current spec layout. Current behavior is owned by spec/domain.md, spec/protocol.md, spec/api.md, and spec/offline-behavior.md; scenarios and runner behavior are in spec/test.md. Existing task status and historical acceptance criteria are retained below for later reconciliation; prose alone does not establish C02's schema-validation check.
-
-
-**C01 - Behavior spec.** Settle identity normalization and persistence, text and UTF-8 limits, message keys, offline enqueue and flush, acceptance versus receipt, display order, retry and terminal errors, cursor rules, self-send, and server-restart limits. Must resolve the open question in design section 15 (how clients leave the "Server reset" state, and what happens to pending messages). Record the design's default values (timeouts, polling, backoff, page size, limits) without claiming they were benchmarked. Done when every required behavior and failure case has an explicit rule with examples.
-
-**C02 - HTTP contract.** The three endpoints, epoch header, field types, UUID/time/Unicode formats, error envelope, identical retry versus conflicting key, page validation, and versioning. Done when the schema parses with a validator and its examples match C01.
-
-**C03 - Scenarios and runner contract.** The JSONL commands (`identify`, `send`, `offline`, `sync_once`, `snapshot`, `shutdown`), request/result correlation, error shape, stdout/stderr split, manual and automatic sync modes, and shared fixtures. Done when fixtures express the Alice/Bob scenario, role reversal, client restart, and failure cases with no platform-specific expected answers. Test controls are runner operations, never special cases in app code.
+**SPEC02 - Resolve restart recovery (Q4).** Pending separate spec decision for both clients. Affected rules: O7.1, O10.3–O10.4, O11.1, D8.1, U4.1, P4.2, P10.2–P10.3. Decide which stopped states survive restart and which explicit actions resume them; see the [proposal and rule ambiguity](analysis/SPEC01.md#q4--restart-recovery-decision). Done when the owning spec defines each case and spec/test.md defines MT5 expectations. S1–S6 and section 7 remain regression requirements. Generation of this behavior is blocked on that decision. Reopen affected implementation and verification tasks when the spec changes.
 
 **E01 - Environment.** Record the inventory in [ENVIRONMENT.md](ENVIRONMENT.md) and link probe evidence from this task. Inventory Python, Xcode and Swift, JDK, Gradle, and the Android SDK; pick compatible versions, ports, host addresses for simulators and emulators, and data-directory conventions. Done when each item is recorded as available, missing, or untested, with the probe commands used. macOS is required for all Swift and iOS checks; Linux results prove nothing about them.
 
-- **Completed (2026-10-05):** macOS 27.2, Xcode 27.0, Swift 6.4, XcodeGen 2.46.0, OpenJDK 22, Python 3.12.9, Claude Code 2.1.190 - all available. Gradle not installed system-wide (not required; see K1.3 and `GENERATION_BOUNDARY.md`). Android SDK platforms 34/35/37.0 available; `adb` and `emulator` missing - N02 blocked until emulator configured. Default simulator: iPhone 17. JDK 22 vs K1.1's JDK 17 requirement: compatible; update K1.1 in a separate spec task if strict bound needed.
+- **Completed (2026-10-05):** macOS 27.2, Xcode 27.0, Swift 6.4, XcodeGen 2.46.0, OpenJDK 22, Python 3.12.9, Claude Code 2.1.190 — all available. Gradle not installed system-wide (wrapper used per platform spec). Android SDK platforms 34/35/37.0 available; `adb` and `emulator` missing — N02 blocked. Default simulator: iPhone 17.
 
-**B01 - Server.** Follow `server/AGENTS.md`: FastAPI, one process and worker, in-memory storage, atomic accept-or-replay. Done when real endpoint tests pass for first acceptance, exact duplicate, conflicting key, concurrent retries, mailbox isolation, exclusive cursor paging, empty pages, invalid payloads, epoch mismatch, and the error envelope (including FastAPI validation errors). No auth, database, or brokers.
+**B01 - Server.** Follow `server/AGENTS.md`: FastAPI, one process and worker, in-memory storage, atomic accept-or-replay. Done when real endpoint tests pass for first acceptance, exact duplicate, conflicting key, concurrent retries, mailbox isolation, exclusive cursor paging, empty pages, invalid payloads, epoch mismatch, and the error envelope. No auth, database, or brokers.
 
 **V01 - Test runner.** In `tests/`, launch the real server and real headless clients with separate data directories. Drive commands by awaiting structured results or bounded conditions, never fixed sleeps. Compare logical fields and bind IDs and sequences from responses. Provide fault controls (network outage, dropped response after real acceptance, repeated page, store reopen) outside app logic. Done when the runner's own assertions are tested, including one deliberately wrong outcome that must fail.
 
-**A01 / A02 - Client cores and headless runners.** Implement the design's core, HTTP adapter, SQLite adapter, and headless runner for Swift (A01, in `ios/`) and Kotlin (A02, in `android/`). Done when the following each have a passing recorded check against the real store and real server:
+**A01 / A02 - Client cores and headless runners.** Implement the design's core, HTTP adapter, SQLite adapter, and headless runner for Swift (A01, in `clients/ios/`) and Kotlin (A02, in `clients/android/`). Done when the following each have a passing recorded check against the real store and real server:
 - Enqueue saves message and outbox entry together; reopening the store keeps pending work.
 - Acceptance and outbox removal commit together; a lost ack retries the same ID and payload.
 - Each inbox page and its cursor commit together; a failed commit leaves the prior state; replay creates no visible duplicate.
@@ -102,16 +92,16 @@ Message texts come from `spec/scenarios/`. Also test a lost POST response, a rep
 
 Detailed historical records are in [evidence/LEDGER.md](evidence/LEDGER.md). They were moved without rerunning their checks. Preserve each ID when adding a new report.
 
-| Task | Evidence IDs                                                                  |
-|---|-------------------------------------------------------------------------------|
-| D02–D04 | E-D02, E-D03, E-D04                                                           |
-| SPEC01 | E-SPEC01 (original conclusion superseded; see the analysis report)            |
+| Task | Evidence IDs |
+|---|---|
+| SPEC01 | E-SPEC01-analysis, E-SPEC01-analysis-2, E-SPEC01-analysis-3 |
+| E01 | E-E01-inventory |
 | A01 | E-A01-build (PASS), E-A01-test (PASS), E-X01-scenarios (PASS — S1–S6 both roles) |
 | A02 | E-A02-build (PASS), E-A02-test (PASS), E-A02-smoke (PASS), E-X01-scenarios (PASS) |
-| N01 | NOT RUN — no SwiftUI app target in clients/ios; headless runner only              |
-| N02 | NOT RUN — adb/emulator not found (E-E01-inventory); Android app module not built  |
-| B01 | E-B01-test                                                                        |
-| X01 | E-X01-fixtures (PASS), E-X01-scenarios (70/70 PASS), E-X01-client-only (partial)  |
+| N01 | NOT RUN — no SwiftUI app target in clients/ios; headless runner only |
+| N02 | NOT RUN — adb/emulator not found (E-E01-inventory); Android app module not built |
+| B01 | E-B01-test |
+| X01 | E-X01-fixtures (PASS), E-X01-scenarios (70/70 PASS), E-X01-client-only (partial) |
 
 ## Completion and scope
 
@@ -121,4 +111,4 @@ Optional and not blocking: thin platform `CLAUDE.md` files and Linux support for
 
 ## Next
 
-D01: update root `CLAUDE.md` to match `AGENTS.md`.
+N01: generate SwiftUI / Kotlin app target and build on simulator.
