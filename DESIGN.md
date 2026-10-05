@@ -95,7 +95,7 @@ The harness separates analysis, implementation, and verification into four roles
 
 **Why generate from spec only.** If the generator could read old generated code, regeneration would copy rather than derive, and the core promise would be untested. Generation therefore uses only `spec/` and declared inputs, never earlier output or its history.
 
-**Invocation (proposed).** The generator is one documented command per platform that runs the roles in order with the inputs above, then the Verifier. Where the tooling allows, each implementer runs with only `spec/` and its own output path visible, so isolation is enforced rather than requested. The exact command, tool, and working directory are documented in `generator/` and the README once built and run.
+**Invocation.** The generator is one documented command per platform that runs the roles in order with the inputs above, then the Verifier. Where the tooling allows, each implementer runs with only `spec/` and its own output path visible, so isolation is enforced rather than requested. The exact commands, tool, and working directory are documented in the README.
 
 ## 8. Verification
 
@@ -106,7 +106,7 @@ The harness separates analysis, implementation, and verification into four roles
 
 ## 9. Evolution
 
-A new feature follows a fixed path (`protocol.md` P3.8): register the event type, define its body in `domain.md`, its display in `ui.md`, and its scenarios in `test.md`, then regenerate. The envelope, endpoints, sync cycle, and storage transactions stay the same, so a well-specified reaction or attachment type should regenerate into working clients without harness changes.
+A new feature follows a fixed path: register the event type in `protocol.md`, define its body in `domain.md`, its display in `ui.md`, and its scenarios in `test.md`, then regenerate. The envelope, endpoints, sync cycle, and storage transactions stay the same, so a well-specified reaction or attachment type should regenerate into working clients without harness changes.
 
 Some features are deliberately not that cheap. Group conversations change addressing (who a mailbox belongs to and who may read it), so they require a protocol version change (P3.9). The design states this limit openly rather than pretending everything is additive.
 

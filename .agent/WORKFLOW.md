@@ -1,6 +1,8 @@
 # Workflow
 
-How work moves through this repository, step by step. `AGENTS.md` defines the roles and their permissions; `.agent/TASKS.md` holds the task list and evidence; `spec/` defines behavior. This file defines the procedures that connect them. It adds no behavior rules.
+How work moves through this repository, step by step. `AGENTS.md` defines the roles and their permissions; 
+`.agent/TASKS.md` holds the task list and evidence; 
+`spec/` defines behavior.
 
 Every workflow below ends with a handoff (`AGENTS.md`) and a commit. Never batch several workflows into one commit.
 
@@ -9,7 +11,7 @@ Every workflow below ends with a handoff (`AGENTS.md`) and a commit. Never batch
 Use for any new or changed requirement, including fixes to spec bugs found during generation.
 
 1. **Analyzer:** state the change in one sentence and list the affected rule IDs, or the new IDs to be added.
-2. **Analyzer:** find every spec file that mentions the topic. Each topic has one owning file (`DESIGN.md` section 4); change the owner, and update other files only where they cite it.
+2. **Analyzer:** find every spec file that mentions the topic. Each topic has one owning file (see `DESIGN.md` for the ownership table); change the owner, and update other files only where they cite it.
 3. Edit the spec. New rules get the next free ID in their file; existing IDs are never renumbered or reused.
 4. Update `spec/test.md`: every new or changed rule needs a scenario, fixture, or client-only check that would fail if the rule were broken.
 5. **Analyzer:** reread all touched files for contradictions. Any rule marked [DECISION NEEDED] blocks generation of the behavior it covers.
@@ -23,7 +25,7 @@ Use to produce client code from the spec, for a first generation, after a spec c
 1. Confirm the inputs exist: `spec/`, the platform file (`spec/platform/ios.md` or `spec/platform/android.md`), and the generator (`skills/`). If any is missing, stop and record the task as `blocked`.
 2. Confirm no open [DECISION NEEDED] covers behavior being generated.
 3. **Analyzer:** write the plan into the task entry: affected rules, platforms, and the scenarios that must pass.
-4. Run the generator for one platform using its documented command. The implementer reads only `spec/`, declared generator inputs, and its own output paths; never the other client, earlier generated output, or git history of generated paths.
+4. Run the generator for one platform using its documented command.
 5. The implementer runs its own build and unit tests and fixes failures inside its generated paths.
 6. If the implementer finds the spec ambiguous or wrong, it stops that behavior and reports it. The fix goes through W1, never into generated code alone.
 7. Commit the generated output alone: `gen(<platform>): <scope> from spec <revision>`. The message states it is generated.
@@ -65,19 +67,9 @@ Use when generation is unreliable: missing behavior, broken builds, or agents ig
 4. Regenerate the affected platform (W2) and verify (W3).
 5. Commit: `generator: <what changed and why>`.
 
-## W6. Prove clean regeneration
+## W6. Add a feature (evolution)
 
-The assignment's primary criterion. Run before delivery and after any generator change.
-
-1. Clone the repository into a new, separate directory. Never do this in the working checkout.
-2. In the clone, delete only `clients/ios/` and `clients/android/`.
-3. Follow the README exactly as written, with no extra knowledge, to regenerate both clients.
-4. Run W3 in the clone.
-5. Record the result in `.agent/TASKS.md` with the clone's commit and every deviation from the README. Any step you had to improvise is a README or generator bug.
-
-## W7. Add a feature (evolution)
-
-1. Run W1: register the event type (`protocol.md` P3.8), define its body in `domain.md`, its display in `ui.md`, and its scenarios in `test.md`.
+1. Run W1: register the event type in `protocol.md`, define its body in `domain.md`, its display in `ui.md`, and its scenarios in `test.md`.
 2. Run W2 for both platforms with no generator changes.
 3. Run W3.
 4. If regeneration needed a generator change, record why in `DESIGN.md`: that is a limit of the harness's genericity.

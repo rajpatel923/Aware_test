@@ -15,7 +15,6 @@ A code generator that turns a written specification into two independent messagi
 | `CLAUDE.md`        | Per-session agent instructions                       | Hand-written |
 | `DESIGN.md`        | Full design rationale                                | Hand-written |
 | `.agent/TASKS.md`  | Work queue and verification evidence                 | Hand-written + agent-updated |
-| `server/`          | FastAPI server    | Hand-written |
 | `clients/ios/`     | **Generated** Swift client                           | Generated |
 | `clients/android/` | **Generated** Kotlin client                          | Generated |
 
@@ -57,6 +56,8 @@ The generator works through four roles defined in `AGENTS.md`. Each role is a Cl
 Roles run in order: Analyzer → Implementers (either order or parallel) → Verifier.
 
 **Tool:** Claude Code CLI (`claude`). The evaluator runs the slash commands in a Claude Code session open at the repository root.
+
+When you type `/generate-ios`, Claude Code loads `skills/generate-ios.md` as the agent's instructions. The agent reads only `spec/`, writes only `clients/ios/`, and cites the rule ID on every piece of behavior logic. `skills/` files are the authoritative prompt templates; `.claude/commands/` files are one-liners that load the skill and invoke the role. Improving a skill never requires touching the command file.
 
 ---
 
