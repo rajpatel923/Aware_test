@@ -14,6 +14,8 @@ K1.1 Libraries are limited to: Kotlin standard library, kotlinx.coroutines, kotl
 
 K1.2 Use the latest stable versions that work together with the recorded JDK and Android Gradle Plugin. Pin every version in `gradle/libs.versions.toml`, and report them in the handoff.
 
+K1.3 **Kotlin 2.0+ Compose compiler plugin.** Kotlin 2.0 extracted the Compose compiler into a separate plugin (`org.jetbrains.kotlin.plugin.compose`) that must be declared explicitly and versioned to match Kotlin exactly. Declare it in `[plugins]` in `gradle/libs.versions.toml` as `kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }`. Register it in the root `build.gradle.kts` as `alias(libs.plugins.kotlin.compose) apply false`. Apply it in `:app/build.gradle.kts` via `alias(libs.plugins.kotlin.compose)`. Omitting any of these three steps causes a Gradle sync failure; the symptom is a plugin resolution error because the plugin ID has no declared version.
+
 ## 2. Structure
 
 Generated output lives at `clients/android/`. One Gradle build with these modules:
@@ -52,7 +54,7 @@ K4.2 Never hold the mutex or a database transaction across a network call (O6.2)
 
 K4.3 Always rethrow `CancellationException`; never classify it as a network failure (O4.3).
 
-K4.4 State reaches the UI as a read-only `StateFlow` of immutable snapshots, collected with `collectAsStateWithLifecycle`. Composables never call storage or HTTP directly.
+K4.4 State reaches the UI as a read-only `StateFlow` of immutable snapshots, collected with `collectAsStateWithLifecycle`. Composables never call storage or HTTP directly. `collectAsStateWithLifecycle` comes from `androidx.lifecycle:lifecycle-runtime-compose`; it is not in `lifecycle-runtime-ktx`. Declare and add it to `:app` dependencies or the call site will not resolve.
 
 ## 5. Storage
 
@@ -70,11 +72,13 @@ K6.2 kotlinx.serialization `Json` with `ignoreUnknownKeys = true` (responses, A1
 
 K6.3 URL-encode the username in the mailbox path with `HttpUrl.Builder.addPathSegment`.
 
+K6.4 **Disable OkHttp connection pooling.** Set `connectionPool(ConnectionPool(0, 1L, TimeUnit.NANOSECONDS))` on the client builder. OkHttp's default pool holds idle TCP connections open; after a server restart on the same port, OkHttp reuses the stale connection, receives a connection-reset error, and maps it to `OutcomeUnknown` — incorrectly driving the client to `offline` instead of the expected `server_reset` result. iOS `URLSession` (ephemeral, per-process session) does not pool connections this way, so it is unaffected. `keepAliveDuration` must be > 0; 1 nanosecond is the minimum valid value.
+
 ## 7. App
 
 K7.1 Jetpack Compose with one `ViewModel` per screen holding only transient UI state; view models receive the client from the application, and destroying one never stops the client.
 
-K7.2 `ProcessLifecycleOwner` drives activity: started → active; stopped → inactive (O10.1–O10.3). No WorkManager or push notifications (O10.5).
+K7.2 `ProcessLifecycleOwner` drives activity: started → active; stopped → inactive (O10.1–O10.3). No WorkManager or push notifications (O10.5). `ProcessLifecycleOwner` comes from `androidx.lifecycle:lifecycle-process`; it is not included transitively by `lifecycle-runtime-ktx`. Declare and add it to `:app` dependencies or the reference will not resolve.
 
 K7.3 Server base URL comes from configuration. The emulator reaches the host machine at `10.0.2.2`, so the debug default is `http://10.0.2.2:8000`. A physical device needs the host's LAN address.
 

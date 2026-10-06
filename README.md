@@ -8,44 +8,7 @@ Generated code is disposable. A fix to generated behavior is always a spec chang
 
 ---
 
-## The spec
 
-Every behavioral rule is in `spec/`. Each file owns one concern:
-
-| File | What it defines |
-|---|---|
-| `product.md` | User-facing requirements and scope |
-| `domain.md` | Entities, username rules, text rules, statuses (`D…` rules) |
-| `protocol.md` | Event envelope, idempotency, sequencing, cursors (`P…` rules) |
-| `api.md` | HTTP endpoints, wire format, error codes (`A…` rules) |
-| `offline-behavior.md` | Outbox, sync cycle, retries, lifecycle (`O…` rules) |
-| `ui.md` | Screens and display (`U…` rules) |
-| `test.md` | Headless runner contract, Gherkin scenarios, fixtures (`T…` rules) |
-| `platform/ios.md` | Swift-specific choices, pitfalls, build commands (`I…` rules) |
-| `platform/android.md` | Kotlin-specific choices, pitfalls, build commands (`K…` rules) |
-
-When the spec and implementation disagree, the spec wins. When two spec files disagree, stop and report, never choose one silently.
-
----
-
-## The agentic coding generator
-
-The generator works through four roles defined in `AGENTS.md`. Each role is a Claude Code slash command backed by a prompt file in `.agents/skills/`:
-
-| Role | Command | Skill file | What it does |
-|---|---|---|---|
-| Specification Analyzer | `/analyze` | `.agents/skills/analyze.SKILL.md` | Reads spec, identifies affected rules, flags gaps, writes plan to `.agents/TASKS.md`. Writes no code. |
-| iOS Implementer | `/generate-ios` | `.agents/skills/generate-ios.SKILL.md` | Generates Swift client in `clients/ios/` from spec only. Never reads `clients/android/`. |
-| Android Implementer | `/generate-android` | `.agents/skills/generate-android.SKILL.md` | Generates Kotlin client in `clients/android/` from spec only. Never reads `clients/ios/`. |
-| Verifier | `/verify` | `.agents/skills/verify.SKILL.md` | Builds both clients, runs all scenarios in both role assignments, records PASS/FAIL/NOT RUN. Cannot edit code or spec. |
-
-Roles run in order: Analyzer → Implementers (either order or parallel) → Verifier.
-
-**Tool:** Claude Code CLI (`claude`). The evaluator runs the slash commands in a Claude Code session open at the repository root.
-
-When you type `/generate-ios`, Claude Code loads `.agents/skills/generate-ios.SKILL.md` as the agent's instructions. The agent reads only `spec/`, writes only `clients/ios/`, and cites the rule ID on every piece of behavior logic. `.agents/skills/` files are the authoritative prompt templates; `.claude/commands/` files are one-liners that load the skill and invoke the role. Improving a skill never requires touching the command file.
-
----
 
 ## Regenerating the clients
 
