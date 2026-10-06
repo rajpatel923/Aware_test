@@ -4,14 +4,12 @@ Written by the Specification Analyzer (`AGENTS.md`) before generation. This repo
 
 ## Run
 
-- Date: 
-- Repository commit: 
+- Date:
+- Repository commit:
 - Spec revision:
-- Agent tool and version: 
-- Requested change or scope: 
+- Agent tool and version:
+- Requested change or scope:
 
 ## Rules
-
-
 
 ## Affected rules

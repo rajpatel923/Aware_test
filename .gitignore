@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Swift / iOS
+clients/ios/.build/
+clients/ios/MessagingApp.xcodeproj/
+
+# Android / Gradle
+clients/android/.gradle/
+clients/android/build/
+clients/android/**/build/
+clients/android/local.properties
+*.apk
+*.aab
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Serena tool artifacts
+.serena/
